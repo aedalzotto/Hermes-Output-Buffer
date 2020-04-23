@@ -26,6 +26,13 @@ architecture rtl of outbuffer is
 	signal read_pointer, write_pointer: pointer;
 
 begin
+	--
+	--! write_pointer    /= read_pointer      :   FIFO WITH SPACE TO WRITE
+	--! read_pointer + 1 == write_pointer     :   FIFO EMPTY
+	--! write_pointer    == read_pointer      :   FIFO FULL
+	--
+
+
 	-- If fifo isn't empty, credit is high. Else, low
 	credit_o <= '1' when write_pointer /= read_pointer else '0';
 
@@ -45,7 +52,7 @@ begin
 
 
 	data_out <= buf(CONV_INTEGER(read_pointer));
-	data_av <= '1' when read_pointer /= write_pointer else '0';
+	data_av <= '0' when read_pointer + 1 = write_pointer else '1';
 
 	--! Buffer read process
 	process(reset, clock)
