@@ -10,7 +10,7 @@ entity testbench is
 end entity;
 
 architecture behavioral of testbench is
-	signal clock: std_logic := '0';
+	signal clock: std_logic := '1';
 	signal reset: std_logic;
 
 	signal clock_tx:	regNport;
