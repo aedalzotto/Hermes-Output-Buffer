@@ -23,7 +23,7 @@ architecture behavioral of testbench is
 
 	constant NB_ROUTERS : integer :=  X_NODES * Y_NODES;
 
-	signal data_in:	array_buffer;
+	signal data_in:		array_buffer;
 	signal data_ack:	port_buffer;
 	signal data_av:		port_buffer;
 
@@ -31,6 +31,8 @@ architecture behavioral of testbench is
 
 	signal address1, data1: std_logic_vector(15 downto 0);
 	signal ce1: std_logic;
+
+	signal my_data:	regflit;
 
 	type packet is array (0 to 16) of std_logic_vector(15 downto 0);
 	constant pck1 : packet := 
@@ -64,7 +66,7 @@ begin
 
 	--------------------
 
-
+	-- Inject packet
 	process(reset, clock)
 	begin
 		if reset='1' then
@@ -98,6 +100,18 @@ begin
 			else
 				wait for 20 ns;
 			end if;
+		end loop;
+	end process;
+
+	-- read packet
+	process
+	begin
+		wait for 900 ns;
+		while data_av(LOCAL)(LOCAL) = '1' loop
+			my_data <= data_in(LOCAL)(LOCAL);
+			data_ack(LOCAL)(LOCAL) <= '1';
+			wait for 10 ns;
+			data_ack(LOCAL)(LOCAL) <= '0';
 		end loop;
 	end process;
 
