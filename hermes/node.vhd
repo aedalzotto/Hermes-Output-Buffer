@@ -31,9 +31,6 @@ begin
 	port map(
 		clock => clock,
 		reset => reset,
-		
-		-- Routing control
-		address => address,
 
 		-- To/from output port
 		clock_rx => clock,
@@ -127,7 +124,7 @@ begin
 		reset => reset,
 		
 		-- Routing control
-		address => address,
+		 
 
 		-- To/from output port
 		clock_rx => clock,
@@ -221,7 +218,7 @@ begin
 		reset => reset,
 		
 		-- Routing control
-		address => address,
+		 
 
 		-- To/from output port
 		clock_rx => clock,
@@ -315,7 +312,7 @@ begin
 		reset => reset,
 		
 		-- Routing control
-		address => address,
+		 
 
 		-- To/from output port
 		clock_rx => clock,
@@ -409,7 +406,7 @@ begin
 		reset => reset,
 		
 		-- Routing control
-		address => address,
+		 
 
 		-- To/from output port
 		clock_rx => clock,

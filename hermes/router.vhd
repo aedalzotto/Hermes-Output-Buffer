@@ -15,13 +15,14 @@ use IEEE.std_logic_unsigned.all;
 use work.HermesPackage.all;
 
 entity router is
+	generic(
+		-- Routing Control
+		address:	regmetadeflit	:= x"00"
+	);
 	port(
 		clock:	in	std_logic;
-        reset:	in	std_logic;
-
-		-- Routing control
-		address:	in	regmetadeflit;
-
+		reset:	in	std_logic;
+		
 		-- To/from output port
 		clock_rx:	in	std_logic;
 		rx:			in	std_logic;
@@ -39,23 +40,25 @@ architecture rtl of router is
 	type	state is (S_INIT, S_SENDHEADER, S_PKTSIZE, S_PAYLOAD);
 	signal	active_state:	state;
 
-	signal		local_x, local_y:	regquartoflit;
-	signal		target_x, target_y: regquartoflit;
+	signal	target_x, target_y:	regquartoflit;
 
-	signal	target: integer;
-	signal target_set: std_logic;
+	signal	target:		integer;
+	signal	target_set:	std_logic;
 
+	-- Flow control
 	signal	flit_counter:	regflit;
 
-begin
 	-- Local address for routing
-	local_x <= address((METADEFLIT - 1) downto QUARTOFLIT);
-	local_y <= address((QUARTOFLIT - 1) downto 0);
+	constant	local_x:	regquartoflit	:=	address((METADEFLIT - 1) downto QUARTOFLIT);
+	constant	local_y:	regquartoflit	:=	address((QUARTOFLIT - 1) downto 0);
+
+begin
 
 	-- Target address for routing
 	target_x <= data_in((METADEFLIT - 1) downto QUARTOFLIT);
 	target_y <= data_in((QUARTOFLIT - 1) downto 0);
 
+	-- Output buffer muxing
 	credit_o <= credit_i(target) when target_set = '1' else '1';
 	tx(LOCAL) <= rx when target = LOCAL and target_set = '1' else '0';
 	tx(NORTH) <= rx when target = NORTH and target_set = '1' else '0';
@@ -65,7 +68,6 @@ begin
 
 	process(reset, clock)
 	begin
-
 		if reset = '1' then
 			target_set <= '0';
 			active_state <= S_INIT;
@@ -75,7 +77,6 @@ begin
 					-- Receiving data
 					if(rx = '1') then
 						-- Next state will be the header bufferization + payload size
-						target_set <= '1';
 						active_state <= S_SENDHEADER;
 
 						-- Routing algorithm (XY)
@@ -99,12 +100,12 @@ begin
 						else
 							-- Could not process header, stay in INIT state and retry receiving flit.
 							active_state <= S_INIT;
-							target_set <= '0';
 						end if;
 
 					end if;
 				
 				when S_SENDHEADER =>
+					target_set <= '1';
 
 					-- Only send if buffer is not full.
 					if credit_i(target) = '1' then
