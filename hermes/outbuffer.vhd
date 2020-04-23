@@ -51,7 +51,8 @@ begin
 	process(reset, clock)
 	begin
 		if reset = '1' then
-			read_pointer <= (others => '0');
+			-- Initialize the read pointer with one position before the write pointer
+			read_pointer <= (others => '1');
 		elsif rising_edge(clock) then
 			if data_ack = '1' then
 				read_pointer <= read_pointer + 1;
