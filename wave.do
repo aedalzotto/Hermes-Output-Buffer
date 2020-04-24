@@ -25,7 +25,7 @@ add wave -divider {roteador 20 PORTA OESTE}
 add wave -format Logic /testbench/noc1/clock(0)
 add wave -format Logic /testbench/noc1/rx(2)(1)
 add wave -format Logic /testbench/noc1/credit_o(2)(1)
-add wave -format Literal -radix hexadecimal /testbench/noc1/data_in(2)(1)
+add wave -format Literal -radix hexadecimal /testbench/noc1/data_out(2)(1)
 
 add wave -divider {roteador 10 PORTA NORTE}
 add wave -format Logic /testbench/noc1/tx(1)(2)
