@@ -37,7 +37,7 @@ end entity;
 
 architecture rtl of router is
 
-	type	state is (S_INIT, S_SENDHEADER, S_PKTSIZE, S_PAYLOAD);
+	type	state is (S_INIT, S_ROUTE, S_SENDHEADER, S_PKTSIZE, S_PAYLOAD);
 	signal	active_state:	state;
 
 	signal	target_x, target_y:	regquartoflit;
@@ -52,6 +52,8 @@ architecture rtl of router is
 	constant	local_x:	regquartoflit	:=	address((METADEFLIT - 1) downto QUARTOFLIT);
 	constant	local_y:	regquartoflit	:=	address((QUARTOFLIT - 1) downto 0);
 
+	signal hang:	std_logic;
+
 begin
 
 	-- Target address for routing
@@ -59,7 +61,9 @@ begin
 	target_y <= data_in((QUARTOFLIT - 1) downto 0);
 
 	-- Output buffer muxing
-	credit_o <= credit_i(target) when target_set = '1' else '1';
+	credit_o <= '0' when hang = '1' else 
+				credit_i(target) when target_set = '1'
+				else '1';
 	tx(LOCAL) <= rx when target = LOCAL and target_set = '1' else '0';
 	tx(NORTH) <= rx when target = NORTH and target_set = '1' else '0';
 	tx(SOUTH) <= rx when target = SOUTH and target_set = '1' else '0';
@@ -70,14 +74,17 @@ begin
 	begin
 		if reset = '1' then
 			target_set <= '0';
+			hang <= '0';
 			active_state <= S_INIT;
 		elsif rising_edge(clock) then
 			case active_state is
 				when S_INIT =>
 					-- Receiving data
-					if(rx = '1') then
+					if rx = '1'  then
 						-- Next state will be the header bufferization + payload size
-						active_state <= S_SENDHEADER;
+						hang <= '1';
+						target_set <= '1';
+						active_state <= S_ROUTE;
 
 						-- Routing algorithm (XY)
 						if local_x = target_x and local_y = target_y then -- Target is local, route to LOCAL
@@ -99,22 +106,25 @@ begin
 
 						else
 							-- Could not process header, stay in INIT state and retry receiving flit.
+							target_set <= '0';
 							active_state <= S_INIT;
 						end if;
 
 					end if;
 				
-				when S_SENDHEADER =>
-					target_set <= '1';
+				when S_ROUTE =>
+					active_state <= S_SENDHEADER;
 
+				when S_SENDHEADER =>
 					-- Only send if buffer is not full.
-					if credit_i(target) = '1' then
+					hang <= '0';
+					if credit_i(target) = '1' and rx = '1' then
 						active_state <= S_PKTSIZE;
 					end if;
 
 				when S_PKTSIZE =>
 					-- Load the payload size to the counter to know when to reroute
-					if rx = '1' then
+					if rx = '1' and credit_i(target) = '1' then
 						flit_counter <= data_in;
 						active_state <= S_PAYLOAD;
 					end if;
@@ -123,7 +133,7 @@ begin
 					if flit_counter = x"0" then
 						target_set <= '0';
 						active_state <= S_INIT;
-					elsif credit_i(target) = '1' then
+					elsif rx = '1' and credit_i(target) = '1' then
 						flit_counter <= flit_counter - 1;
 					end if;
 

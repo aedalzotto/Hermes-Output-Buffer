@@ -55,10 +55,6 @@ package HermesPackage is
 
 	function CONV_VECTOR( int: integer ) return std_logic_vector;
 
-
-	type array_buffer is array((NPORT-1) downto 0) of arrayNport_regflit;
-	type port_buffer is array((NPORT-1) downto 0) of regNport;
-
 ---------------------------------------------------------
 -- FUNCOES TB
 ---------------------------------------------------------
