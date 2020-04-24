@@ -23,9 +23,9 @@ architecture behavioral of testbench is
 
 	constant NB_ROUTERS : integer :=  X_NODES * Y_NODES;
 
-	signal data_in:		array_buffer;
-	signal data_ack:	port_buffer;
-	signal data_av:		port_buffer;
+	signal data_in:		arrayNport_regflit;
+	signal data_ack:	regNport;
+	signal data_av:		regNport;
 
 -----------------------------------------------------------------
 
@@ -37,7 +37,7 @@ architecture behavioral of testbench is
 	type packet is array (0 to 16) of std_logic_vector(15 downto 0);
 	constant pck1 : packet := 
 	(
-		x"0000", x"000F", x"1001", x"2002", x"3003", x"4004", x"5005",
+		x"0022", x"000F", x"1001", x"2002", x"3003", x"4004", x"5005",
 		x"6006", x"7007", x"8008", x"9009", x"A00A",
 		x"B00B", x"C00C", x"D00D", x"E00E", x"F00F"
 	);
@@ -60,8 +60,8 @@ begin
 		credit_o => credit_i,
 
 		data_out => data_in,
-		data_ack => data_ack,
-		data_av => data_av
+		credit_i => data_ack,
+		tx => data_av
 	);
 
 	--------------------
@@ -104,15 +104,18 @@ begin
 	end process;
 
 	-- read packet
-	process
+	process(clock, reset)
 	begin
-		wait for 900 ns;
-		while data_av(LOCAL)(LOCAL) = '1' loop
-			my_data <= data_in(LOCAL)(LOCAL);
-			data_ack(LOCAL)(LOCAL) <= '1';
-			wait for 10 ns;
-			data_ack(LOCAL)(LOCAL) <= '0';
-		end loop;
+		if reset = '1' then
+			data_ack <= (others => '0');
+		elsif rising_edge(clock) then
+			if data_av(EAST) = '1' then
+				my_data <= data_in(EAST);
+				data_ack(EAST) <= '1';
+			else
+				data_ack(EAST) <= '0';
+			end if;
+		end if;
 	end process;
 
 
