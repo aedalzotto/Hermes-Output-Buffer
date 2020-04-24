@@ -37,7 +37,7 @@ end entity;
 
 architecture rtl of router is
 
-	type	state is (S_INIT, S_ROUTE, S_SENDHEADER, S_PKTSIZE, S_PAYLOAD);
+	type	state is (S_INIT, S_SENDHEADER, S_PKTSIZE, S_PAYLOAD);
 	signal	active_state:	state;
 
 	signal	target_x, target_y:	regquartoflit;
@@ -80,7 +80,7 @@ begin
 					if rx = '1'  then
 						-- Next state will be the header bufferization + payload size
 						target_set <= '1';
-						active_state <= S_ROUTE;
+						active_state <= S_SENDHEADER;
 
 						-- Routing algorithm (XY)
 						if local_x = target_x and local_y = target_y then -- Target is local, route to LOCAL
@@ -105,14 +105,8 @@ begin
 							target_set <= '0';
 							active_state <= S_INIT;
 						end if;
-
 					end if;
 				
-				when S_ROUTE =>
-					if credit_i(target) = '1' then
-						active_state <= S_SENDHEADER;
-					end if;
-
 				when S_SENDHEADER =>
 					-- Only send if buffer is not full.
 					if credit_i(target) = '1' and rx = '1' then
@@ -128,6 +122,7 @@ begin
 				
 				when S_PAYLOAD =>
 					if flit_counter = x"0" then
+						-- End of packet
 						target_set <= '0';
 						active_state <= S_INIT;
 					elsif rx = '1' and credit_i(target) = '1' then

@@ -30,7 +30,7 @@ entity arbiter is
 end entity;
 
 architecture rtl of arbiter is
-	type state is (S_INIT, S_SENDHEADER, S_PACKETSIZE, S_ACKPKT, S_PAYLOAD);
+	type state is (S_INIT, S_SENDHEADER, S_PKTSIZE, S_PAYLOAD);
 	signal	active_state:	state;
 
 	signal last:	integer;
@@ -77,7 +77,7 @@ begin
 						data_av(NORTH) = '1' or	data_av(SOUTH) = '1' or 
 													data_av(LOCAL) = '1' then
 
-						-- Perform RR algorithm
+						-- Perform RR algorithm from output buffers
 						case last is
 							when EAST =>
 								if data_av(WEST) = '1' then target <= WEST;
@@ -122,27 +122,28 @@ begin
 					end if;
 
 				when S_SENDHEADER =>
-					-- Wait for first flit transmission
-					if credit_i = '1' then
-						active_state <= S_PACKETSIZE;
+					-- Wait for first flit transmission (address)
+					if credit_i = '1' and data_av(target) = '1' then
+						active_state <= S_PKTSIZE;
 					end if;
 
-				when S_PACKETSIZE =>
-					if data_av(target) = '1' then
+				when S_PKTSIZE =>
+					-- Wait for segund flit transmission (flit count)
+					-- Save for flow control
+					if data_av(target) = '1' and credit_i = '1' then
 						flit_counter <= data_in(target);
-						active_state <= S_ACKPKT;
-					end if;
-				when S_ACKPKT =>
-					if credit_i = '1' then
 						active_state <= S_PAYLOAD;
 					end if;
+
 				when S_PAYLOAD =>
 					if flit_counter = x"0" then
+						-- End of packet
 						target_set <= '0';
 						active_state <= S_INIT;
-					elsif credit_i = '1' then
+					elsif credit_i = '1' and data_av(target) = '1' then
 						flit_counter <= flit_counter - 1;
 					end if;
+
 			end case;
 		end if;
 	end process;
