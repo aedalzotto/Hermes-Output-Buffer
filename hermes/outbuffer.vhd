@@ -64,7 +64,9 @@ begin
 		elsif rising_edge(clock) then
 			case active_state is
 				when S_EMPTY =>
+					-- When going from empty buffer, the condition is a bit different
 					if (read_pointer + 1 /= write_pointer) then
+						-- The buffer reader starts at "-1", so is needed to increment 1 to set data as available.
 						read_pointer <= read_pointer + 1;
 						data_av <= '1';
 						active_state <= S_BURST;
@@ -72,9 +74,11 @@ begin
 			when S_BURST =>
 				if data_ack = '1' then
 					if (read_pointer + 1 = write_pointer) then
+						-- The buffer has been emptied by the read
 						data_av <= '0';
 						active_state <= S_EMPTY;
 					else
+						-- The buffer still not empty
 						read_pointer <= read_pointer + 1;
 					end if;
 				end if;

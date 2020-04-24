@@ -58,8 +58,10 @@ begin
 	target_x <= data_in((METADEFLIT - 1) downto QUARTOFLIT);
 	target_y <= data_in((QUARTOFLIT - 1) downto 0);
 
-	-- Output buffer muxing
+	-- Hangs immediately after receiving first flit. Route with few resources.
 	credit_o <= credit_i(target) when target_set = '1' else not rx;
+
+	-- Output buffer muxing
 	tx(LOCAL) <= rx when target = LOCAL and target_set = '1' else '0';
 	tx(NORTH) <= rx when target = NORTH and target_set = '1' else '0';
 	tx(SOUTH) <= rx when target = SOUTH and target_set = '1' else '0';
