@@ -52,8 +52,6 @@ architecture rtl of router is
 	constant	local_x:	regquartoflit	:=	address((METADEFLIT - 1) downto QUARTOFLIT);
 	constant	local_y:	regquartoflit	:=	address((QUARTOFLIT - 1) downto 0);
 
-	signal hang:	std_logic;
-
 begin
 
 	-- Target address for routing
@@ -61,9 +59,7 @@ begin
 	target_y <= data_in((QUARTOFLIT - 1) downto 0);
 
 	-- Output buffer muxing
-	credit_o <= '0' when hang = '1' else 
-				credit_i(target) when target_set = '1'
-				else '1';
+	credit_o <= credit_i(target) when target_set = '1' else not rx;
 	tx(LOCAL) <= rx when target = LOCAL and target_set = '1' else '0';
 	tx(NORTH) <= rx when target = NORTH and target_set = '1' else '0';
 	tx(SOUTH) <= rx when target = SOUTH and target_set = '1' else '0';
@@ -74,7 +70,6 @@ begin
 	begin
 		if reset = '1' then
 			target_set <= '0';
-			hang <= '0';
 			active_state <= S_INIT;
 		elsif rising_edge(clock) then
 			case active_state is
@@ -82,7 +77,6 @@ begin
 					-- Receiving data
 					if rx = '1'  then
 						-- Next state will be the header bufferization + payload size
-						hang <= '1';
 						target_set <= '1';
 						active_state <= S_ROUTE;
 
@@ -113,11 +107,12 @@ begin
 					end if;
 				
 				when S_ROUTE =>
-					active_state <= S_SENDHEADER;
+					if credit_i(target) = '1' then
+						active_state <= S_SENDHEADER;
+					end if;
 
 				when S_SENDHEADER =>
 					-- Only send if buffer is not full.
-					hang <= '0';
 					if credit_i(target) = '1' and rx = '1' then
 						active_state <= S_PKTSIZE;
 					end if;
