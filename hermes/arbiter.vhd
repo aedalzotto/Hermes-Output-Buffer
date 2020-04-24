@@ -45,14 +45,16 @@ begin
 				data_in(WEST) when target = WEST else
 				data_in(NORTH) when target = NORTH else
 				data_in(SOUTH) when target = SOUTH else
-				data_in(LOCAL);
+				data_in(LOCAL) when target = LOCAL else
+				(others => '0');
 
 	tx <= 	'0' when target_set = '0' else
 			data_av(EAST) when target = EAST else
 			data_av(WEST) when target = WEST else
 			data_av(NORTH) when target = NORTH else
 			data_av(SOUTH) when target = SOUTH else
-			data_av(LOCAL);
+			data_av(LOCAL) when target = LOCAL else
+			'0';
 
 	data_ack(EAST) <= credit_i when target_set = '1' and target = EAST else '0';
 	data_ack(WEST) <= credit_i when target_set = '1' and target = WEST else '0';
@@ -60,57 +62,11 @@ begin
 	data_ack(SOUTH) <= credit_i when target_set = '1' and target = SOUTH else '0';
 	data_ack(LOCAL) <= credit_i when target_set = '1' and target = LOCAL else '0';
 
-	-- Round-robin process
-	process(reset, target_set)
-	begin
-		if reset = '1' then
-			last <= EAST;
-		elsif rising_edge(target_set) then
-			case last is
-				when EAST =>
-					if data_av(WEST) = '1' then target <= WEST;
-					elsif data_av(NORTH) = '1' then target <= NORTH;
-					elsif data_av(SOUTH) = '1' then target <= SOUTH;
-					elsif data_av(LOCAL) = '1' then target <= LOCAL;
-					else target <= EAST;
-					end if;
-				when WEST =>
-					if data_av(NORTH) = '1' then target <= NORTH;
-					elsif data_av(SOUTH) = '1' then target <= SOUTH;
-					elsif data_av(LOCAL) = '1' then target <= LOCAL;
-					elsif data_av(EAST) = '1' then target <= EAST;
-					else target <= WEST;
-					end if;
-				when NORTH =>
-					if data_av(SOUTH) = '1' then target <= SOUTH;
-					elsif data_av(LOCAL) = '1' then target <= LOCAL;
-					elsif data_av(EAST) = '1' then target <= EAST;
-					elsif data_av(WEST) = '1' then target <= WEST;
-					else target <= NORTH;
-					end if;
-				when SOUTH =>
-					if data_av(LOCAL) = '1' then target <= LOCAL;
-					elsif data_av(EAST) = '1' then target <= EAST;
-					elsif data_av(WEST) = '1' then target <= WEST;
-					elsif data_av(NORTH) = '1' then target <= NORTH;
-					else target <= SOUTH;
-					end if;
-				when others =>
-					if data_av(EAST) = '1' then target <= EAST;
-					elsif data_av(WEST) = '1' then target <= WEST;
-					elsif data_av(NORTH) = '1' then target <= NORTH;
-					elsif data_av(SOUTH) = '1' then target <= SOUTH;
-					else target <= LOCAL;
-					end if;
-			end case;
-			last <= target;
-		end if;
-	end process;
-
 	process(reset, clock)
 	begin
 		if reset = '1' then
 			-- East starts with lowest priority
+			last <= EAST;
 			target_set <= '0';
 			active_state <= S_INIT;
 		elsif rising_edge(clock) then
@@ -118,8 +74,49 @@ begin
 				when S_INIT =>
 					-- Check if any buffer has data
 					if	data_av(EAST) = '1' or data_av(WEST) = '1' or 
-							data_av(NORTH) = '1' or	data_av(SOUTH) = '1' or 
+						data_av(NORTH) = '1' or	data_av(SOUTH) = '1' or 
 													data_av(LOCAL) = '1' then
+
+						-- Perform RR algorithm
+						case last is
+							when EAST =>
+								if data_av(WEST) = '1' then target <= WEST;
+								elsif data_av(NORTH) = '1' then target <= NORTH;
+								elsif data_av(SOUTH) = '1' then target <= SOUTH;
+								elsif data_av(LOCAL) = '1' then target <= LOCAL;
+								else target <= EAST;
+								end if;
+							when WEST =>
+								if data_av(NORTH) = '1' then target <= NORTH;
+								elsif data_av(SOUTH) = '1' then target <= SOUTH;
+								elsif data_av(LOCAL) = '1' then target <= LOCAL;
+								elsif data_av(EAST) = '1' then target <= EAST;
+								else target <= WEST;
+								end if;
+							when NORTH =>
+								if data_av(SOUTH) = '1' then target <= SOUTH;
+								elsif data_av(LOCAL) = '1' then target <= LOCAL;
+								elsif data_av(EAST) = '1' then target <= EAST;
+								elsif data_av(WEST) = '1' then target <= WEST;
+								else target <= NORTH;
+								end if;
+							when SOUTH =>
+								if data_av(LOCAL) = '1' then target <= LOCAL;
+								elsif data_av(EAST) = '1' then target <= EAST;
+								elsif data_av(WEST) = '1' then target <= WEST;
+								elsif data_av(NORTH) = '1' then target <= NORTH;
+								else target <= SOUTH;
+								end if;
+							when others =>
+								if data_av(EAST) = '1' then target <= EAST;
+								elsif data_av(WEST) = '1' then target <= WEST;
+								elsif data_av(NORTH) = '1' then target <= NORTH;
+								elsif data_av(SOUTH) = '1' then target <= SOUTH;
+								else target <= LOCAL;
+								end if;
+						end case;
+						
+						last <= target;
 						target_set <= '1';
 						active_state <= S_SENDHEADER;
 					end if;
