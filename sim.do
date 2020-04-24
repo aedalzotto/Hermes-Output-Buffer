@@ -8,6 +8,7 @@ vcom -work work -93 -explicit hermes/router.vhd
 vcom -work work -93 -explicit hermes/outbuffer.vhd
 vcom -work work -93 -explicit hermes/arbiter.vhd
 vcom -work work -93 -explicit hermes/node.vhd
+vcom -work work -93 -explicit hermes/noc.vhd
 vcom -work work -93 -explicit testbench.vhd
 
 vsim -t 10ps work.testbench
