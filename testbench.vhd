@@ -32,8 +32,6 @@ architecture behavioral of testbench is
 	signal address1, data1: std_logic_vector(15 downto 0);
 	signal ce1: std_logic;
 
-	signal my_data:	regflit;
-
 	type packet is array (0 to 16) of std_logic_vector(15 downto 0);
 	constant pck1 : packet := 
 	(
@@ -104,19 +102,7 @@ begin
 	end process;
 
 	-- read packet
-	process(clock, reset)
-	begin
-		if reset = '1' then
-			data_ack <= (others => '0');
-		elsif rising_edge(clock) then
-			if data_av(EAST) = '1' then
-				my_data <= data_in(EAST);
-				data_ack(EAST) <= '1';
-			else
-				data_ack(EAST) <= '0';
-			end if;
-		end if;
-	end process;
+	data_ack <= (EAST => '1', others => '0');
 
 
 end architecture;
