@@ -25,6 +25,9 @@ architecture rtl of outbuffer is
 	signal buf: buff := (others=>(others=>'0'));
 	signal read_pointer, write_pointer: pointer;
 
+	type state is (S_EMPTY, S_BURST);
+	signal active_state:	state;
+
 begin
 	--
 	--! write_pointer    /= read_pointer      :   FIFO WITH SPACE TO WRITE
@@ -32,9 +35,9 @@ begin
 	--! write_pointer    == read_pointer      :   FIFO FULL
 	--
 
-
 	-- If fifo isn't empty, credit is high. Else, low
 	credit_o <= '1' when write_pointer /= read_pointer else '0';
+	data_out <= buf(CONV_INTEGER(read_pointer));
 
 	--! Buffer write process
 	process(reset, clock)
@@ -50,20 +53,32 @@ begin
 		end if;
 	end process;
 
-
-	data_out <= buf(CONV_INTEGER(read_pointer));
-	data_av <= '0' when read_pointer + 1 = write_pointer else '1';
-
 	--! Buffer read process
 	process(reset, clock)
 	begin
 		if reset = '1' then
 			-- Initialize the read pointer with one position before the write pointer
 			read_pointer <= (others => '1');
+			data_av <= '0';
+			active_state <= S_EMPTY;
 		elsif rising_edge(clock) then
-			if data_ack = '1' then
-				read_pointer <= read_pointer + 1;
-			end if;
+			case active_state is
+				when S_EMPTY =>
+					if (read_pointer + 1 /= write_pointer) then
+						read_pointer <= read_pointer + 1;
+						data_av <= '1';
+						active_state <= S_BURST;
+					end if;
+			when S_BURST =>
+				if data_ack = '1' then
+					if (read_pointer + 1 = write_pointer) then
+						data_av <= '0';
+						active_state <= S_EMPTY;
+					else
+						read_pointer <= read_pointer + 1;
+					end if;
+				end if;
+			end case;
 		end if;
 	end process;
 	
