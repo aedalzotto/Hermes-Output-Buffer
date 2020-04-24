@@ -17,7 +17,7 @@ use work.HermesPackage.all;
 entity router is
 	generic(
 		-- Routing Control
-		address:	regmetadeflit	:= x"00"
+		address:	regmetadeflit
 	);
 	port(
 		clock:	in	std_logic;

@@ -4,7 +4,7 @@ use work.HermesPackage.all;
 
 entity node is
 	generic(
-		address: regmetadeflit := x"00"
+		address: regmetadeflit
 	);
 	port(
 		clock:	in	std_logic;
@@ -17,6 +17,7 @@ entity node is
 		credit_o:	out	regNport;
 
 		--! Output ports
+		clock_tx: 	out	regNport;
 		data_out:	out arrayNport_regflit;
 		credit_i:	in	regNport;
 		tx:			out	regNport
@@ -36,6 +37,10 @@ architecture rtl of node is
 	signal data_buffer:	array_buffer;
 
 begin
+	CLK_TX : for i in 0 to(NPORT-1) generate
+		clock_tx(i) <= clock;
+	end generate CLK_TX;  
+	
 	E_arbiter: entity work.arbiter
 	port map(
 		clock => clock,
@@ -53,6 +58,9 @@ begin
 	);
 	
 	E_router: entity work.router
+	generic map(
+		address => address
+	)
 	port map(
 		clock => clock,
 		reset => reset,
@@ -160,6 +168,9 @@ begin
 	);
 
 	W_router: entity work.router
+	generic map(
+		address => address
+	)
 	port map(
 		clock => clock,
 		reset => reset,
@@ -267,6 +278,9 @@ begin
 	);
 
 	N_router: entity work.router
+	generic map(
+		address => address
+	)
 	port map(
 		clock => clock,
 		reset => reset,
@@ -377,6 +391,9 @@ begin
 	);
 
 	S_router: entity work.router
+	generic map(
+		address => address
+	)
 	port map(
 		clock => clock,
 		reset => reset,
@@ -487,6 +504,9 @@ begin
 	);
 
 	L_router: entity work.router
+	generic map(
+		address => address
+	)
 	port map(
 		clock => clock,
 		reset => reset,
