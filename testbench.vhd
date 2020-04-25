@@ -85,8 +85,8 @@ begin
     begin
         if reset='1' then
             rx(0) <= '0';
-        elsif clock(0)'event and clock(0)='1' then
-            if ce1='1' and address1=x"FFFF" then
+        elsif rising_edge(clock(0)) then
+            if ce1='1' and address1=x"FFFF" and credit_o(0) = '1' then
                 rx(0) <= '1';
                 data_in(0) <= data1;
             elsif credit_o(0)='1' then      -- important: flow control
@@ -108,7 +108,7 @@ begin
                 data1 <= pck1(i);       -- simulate a write( pck(i), address_noc) 
                 ce1  <= '1';
                 wait for 20 ns;
-                ce1  <= '0';
+                ce1 <= '0';
                 wait for 20 ns;
                 i := i + 1;
             else
