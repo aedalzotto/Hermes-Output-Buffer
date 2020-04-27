@@ -39,7 +39,7 @@ architecture testbench of testbench is
     
     constant pck2 : packet :=
     (
-		x"2012", x"000F",
+		x"0012", x"000F",
 		x"FFFF", x"EEEE", x"DDDD", x"CCCC", x"BBBB",
         x"AAAA", x"9999", x"8888", x"7777", x"6666",
         x"5555", x"4444", x"3333", x"2222", x"1111"
@@ -90,7 +90,7 @@ begin
         if reset='1' then
             rx(0) <= '0';
         elsif rising_edge(clock(0)) then
-            if ce1='1' and address1=x"FFFF" and credit_o(0) = '1' then
+            if ce1='1' and address1=x"FFFF" then
                 rx(0) <= '1';
                 data_in(0) <= data1;
             elsif credit_o(0)='1' then      -- important: flow control
@@ -126,7 +126,7 @@ begin
         if reset='1' then
             rx(2) <= '0';
         elsif rising_edge(clock(2)) then
-            if ce2='1' and address2=x"FFFF" and credit_o(2) = '1' then
+            if ce2='1' and address2=x"FFFF" then
                 rx(2) <= '1';
                 data_in(2) <= data2;
             elsif credit_o(2)='1' then      -- important: flow control
