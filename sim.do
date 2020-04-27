@@ -3,6 +3,7 @@ if {[file isdirectory work]} { vdel -all -lib work }
 vlib work
 vmap work work
 
+sccom -B/usr/bin -g modules/SC_InputModule.cpp
 sccom -B/usr/bin -g modules/SC_OutputModule.cpp
 sccom -B/usr/bin -g modules/SC_OutputModuleRouter.cpp
 sccom -B/usr/bin -link

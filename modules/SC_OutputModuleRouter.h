@@ -329,27 +329,27 @@ void inline outmodulerouter::TrafficWatcher(){
 	int rot, port;
 
 	for(rot=0;rot<constNumRot;rot++){
-		//roteador nýo ý o limite da direita, logo tem a porta EAST
+		//roteador nï¿½o ï¿½ o limite da direita, logo tem a porta EAST
  		if((rot%constNumRotX)!=(constNumRotX-1)){
-			sprintf(temp, "r%dp0.txt", rot);
+			sprintf(temp, "Traffic/Out/r%dp0.txt", rot);
 			Output[rot][0] = fopen(temp, "w");
 			cont[rot][0] = 0;
 		}
-		//roteador nýo ý o limite da esquerda, logo tem a porta WEST
+		//roteador nï¿½o ï¿½ o limite da esquerda, logo tem a porta WEST
  		if((rot%constNumRotX)!=0){
-			sprintf(temp, "r%dp1.txt", rot);
+			sprintf(temp, "Traffic/Out/r%dp1.txt", rot);
 			Output[rot][1] = fopen(temp, "w");
 			cont[rot][1] = 0;
 		}
-		//roteador nýo ý o limite superior, logo tem a porta NORTH
+		//roteador nï¿½o ï¿½ o limite superior, logo tem a porta NORTH
  		if((rot/constNumRotX)!=(constNumRotY-1)){
-			sprintf(temp, "r%dp2.txt", rot);
+			sprintf(temp, "Traffic/Out/r%dp2.txt", rot);
 			Output[rot][2] = fopen(temp, "w");
 			cont[rot][2] = 0;
 		}
-		//roteador nýo ý o limite inferior, logo tem a porta SOUTH
+		//roteador nï¿½o ï¿½ o limite inferior, logo tem a porta SOUTH
  		if((rot/constNumRotX)!=0){
-			sprintf(temp, "r%dp3.txt", rot);
+			sprintf(temp, "Traffic/Out/r%dp3.txt", rot);
 			Output[rot][3] = fopen(temp, "w");
 			cont[rot][3] = 0;
 		}
@@ -358,7 +358,7 @@ void inline outmodulerouter::TrafficWatcher(){
 	while(true){
 		for(rot=0;rot<constNumRot;rot++){
 
-			//roteador nýo ý o limite da direita, logo tem a porta EAST
+			//roteador nï¿½o ï¿½ o limite da direita, logo tem a porta EAST
 			if((rot%constNumRotX)!=(constNumRotX-1)){
 				if(inTx(rot,0) == 1 && inCredit(rot,0)==1){
 					currentFlit[rot][0] = inData(rot,0);
@@ -375,7 +375,7 @@ void inline outmodulerouter::TrafficWatcher(){
 					}
 				}
 			}
-			//roteador nýo ý o limite da esquerda, logo tem a porta WEST
+			//roteador nï¿½o ï¿½ o limite da esquerda, logo tem a porta WEST
 			if((rot%constNumRotX)!=0){
 				if(inTx(rot,1) == 1 && inCredit(rot,1)==1){
 					currentFlit[rot][1] = inData(rot,1);
@@ -392,7 +392,7 @@ void inline outmodulerouter::TrafficWatcher(){
 					}
 				}
 			}
-			//roteador nýo ý o limite superior, logo tem a porta NORTH
+			//roteador nï¿½o ï¿½ o limite superior, logo tem a porta NORTH
 			if((rot/constNumRotX)!=constNumRotY-1){
 				if(inTx(rot,2) == 1 && inCredit(rot,2)==1){
 					currentFlit[rot][2] = inData(rot,2);
@@ -410,7 +410,7 @@ void inline outmodulerouter::TrafficWatcher(){
 
 				}
 			}
-			//roteador nýo ý o limite inferior, logo tem a porta SOUTH
+			//roteador nï¿½o ï¿½ o limite inferior, logo tem a porta SOUTH
 			if((rot/constNumRotX)!=0){
 				if(inTx(rot,3) == 1 && inCredit(rot,3)==1){
 					currentFlit[rot][3] = inData(rot,3);

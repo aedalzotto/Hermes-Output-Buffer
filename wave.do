@@ -1,9 +1,3 @@
-add wave -divider {FONTE DOS DADOS}
-add wave -format Logic /testbench/ce1
-add wave -format Literal -radix hexadecimal /testbench/data1
-add wave -format Logic /testbench/ce2
-add wave -format Literal -radix hexadecimal /testbench/data2
-
 add wave -divider {roteador 00 PORTA LOCAL}
 add wave -format Logic /testbench/noc1/clock(0)
 add wave -format Logic /testbench/noc1/rx(0)(4)

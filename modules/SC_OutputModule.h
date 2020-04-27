@@ -160,10 +160,10 @@ void inline outmodule::TrafficStalker(){
 **
 **  target  size   source  timestamp de saida do nodo  nro de sequencia  timestamp de entrada na rede     payload
 **   00XX   XXXX    00XX      XXXX XXXX XXXX XXXX         XXXX XXXX          XXXX XXXX XXXX XXXX            XXXX ...
-**    S1     S2      S3             S4 a S7                S8 e S9               S10 a S13             S14 atý size = 0
+**    S1     S2      S3             S4 a S7                S8 e S9               S10 a S13             S14 atï¿½ size = 0
 **
 **
-**     escrito      => timestamp de saýda na rede   timestamp de saida do nodo   timestamp de entrada na rede    timestamp de saýda da rede    latýncia    tempo de simulaýýo
+**     escrito      => timestamp de saï¿½da na rede   timestamp de saida do nodo   timestamp de entrada na rede    timestamp de saï¿½da da rede    latï¿½ncia    tempo de simulaï¿½ï¿½o
 ** no fim do pacote        XXXX XXXX XXXX XXXX     	       em decimal    	              em decimal			          em decimal		  em decimal     em milisegundos
 **
 ********************************************************************************************************************************************************************************************/
@@ -195,7 +195,7 @@ void inline outmodule::TrafficStalker(){
 //-----------------------------------------------------//
 
 	for(i=0; i<constNumRot; i++){
-		sprintf(temp,"out%d.txt",i);
+		sprintf(temp,"Traffic/Out/out%d.txt",i);
 		Output[i] = fopen(temp,"w");
 		Size[i] = 0;
 		EstadoAtual[i] = 1;
@@ -242,7 +242,7 @@ void inline outmodule::TrafficStalker(){
 					EstadoAtual[Index]++;
 				}
 				else if(EstadoAtual[Index] == 8 || EstadoAtual[Index] == 9){
-					//captura o nýmero de sequencia do pacote
+					//captura o nï¿½mero de sequencia do pacote
 					CurrentFlit[Index] = (unsigned long int)inData(Index);
 					fprintf(Output[Index]," %0*X",(int)constFlitSize/4,CurrentFlit[Index]);
 
@@ -280,7 +280,7 @@ void inline outmodule::TrafficStalker(){
 							{
 								temp[constFlitSize/4]='\0';
 								fprintf(Output[Index]," %s",temp);
-								j=-1; //  porque na iteracao seguinte j serý 0.
+								j=-1; //  porque na iteracao seguinte j serï¿½ 0.
 							}
 						}
 
@@ -293,7 +293,7 @@ void inline outmodule::TrafficStalker(){
 						//Tempo de chegada do pacote no destino (em decimal)
 						fprintf(Output[Index]," %d",TimeTarget[Index]);
 
-						//latýncia desde o tempo de criaýýo do pacote (em decimal)
+						//latï¿½ncia desde o tempo de criaï¿½ï¿½o do pacote (em decimal)
 						fprintf(Output[Index]," %d",(TimeTarget[Index]-TimeSourceCore[Index]));
 
 					//-----------------TIME--------------------------------//
