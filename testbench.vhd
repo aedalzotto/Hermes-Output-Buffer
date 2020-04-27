@@ -79,7 +79,7 @@ begin
         credit_iLocal => credit_i
     );
 
-    credit_i(7) <= '1';    --- no tutorial eu não sinalizava que precisa deixar o receptor apto
+    -- credit_i(7) <= '1';    --- no tutorial eu não sinalizava que precisa deixar o receptor apto
 
     clock_rx(0) <= clock(0);     -- clock to inject data - the same of the router
     clock_rx(2) <= clock(2);     -- clock to inject data - the same of the router
@@ -161,56 +161,24 @@ begin
     ------------------------------------
 
 
-    com00: Entity work.outmodule
+    om: Entity work.OutputModule
 	port map(
-		clock       => clock(0),
-		reset       => reset,
-        finish      => finish,
-        
-		inClock0    => clock_tx(0),
-		inTx0       => tx(0),
-		inData0     => data_out(0),
-		outCredit0  => credit_i(0),
-        
-        inClock1    => clock_tx(1),
-		inTx1       => tx(1),
-		inData1     => data_out(1),
-		outCredit1  => credit_i(1),
-        
-        inClock2    => clock_tx(2),
-		inTx2       => tx(2),
-		inData2     => data_out(2),
-		outCredit2  => credit_i(2),
-        
-        inClock3    => clock_tx(3),
-		inTx3       => tx(3),
-		inData3     => data_out(3),
-		outCredit3  => credit_i(3),
-        
-        inClock4    => clock_tx(4),
-		inTx4       => tx(4),
-		inData4     => data_out(4),
-		outCredit4  => credit_i(4),
-        
-        inClock5    => clock_tx(5),
-		inTx5       => tx(5),
-		inData5     => data_out(5),
-		outCredit5  => credit_i(5),
-        
-        inClock6    => clock_tx(6),
-		inTx6       => tx(6),
-		inData6     => data_out(6),
-		outCredit6  => credit_i(6),
-        
-        inClock7    => clock_tx(7),
-		inTx7       => tx(7),
-		inData7     => data_out(7),
-		outCredit7  => credit_i(7),
-        
-        inClock8    => clock_tx(8),
-		inTx8       => tx(8),
-		inData8     => data_out(8),
-        outCredit8  => credit_i(8)
+        clock    => clock(0),
+
+        tx_local => tx,
+        data_in0  => data_out(0),
+        data_in1  => data_out(1),
+        data_in2  => data_out(2),
+        data_in3  => data_out(3),
+        data_in4  => data_out(4),
+        data_in5  => data_out(5),
+        data_in6  => data_out(6),
+        data_in7  => data_out(7),
+        data_in8  => data_out(8)
     );
+
+    CREDIT: for i in 0 to NB_ROUTERS-1 generate
+        credit_i(i) <= '1'; 
+    end generate; 
 
 end testbench;
