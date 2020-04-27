@@ -45,6 +45,11 @@ architecture testbench of testbench is
         x"5555", x"4444", x"3333", x"2222", x"1111"
     );
 
+
+    ----------------------
+
+    signal finish:  std_logic;
+
 begin
 	reset <= '1', '0' after 15 ns;
 
@@ -86,7 +91,7 @@ begin
         if reset='1' then
             rx(0) <= '0';
         elsif rising_edge(clock(0)) then
-            if ce1='1' and address1=x"FFFF" and credit_o(0) = '1' then
+            if ce1='1' and address1=x"FFFF" then
                 rx(0) <= '1';
                 data_in(0) <= data1;
             elsif credit_o(0)='1' then      -- important: flow control
@@ -122,7 +127,7 @@ begin
         if reset='1' then
             rx(2) <= '0';
         elsif rising_edge(clock(2)) then
-            if ce2='1' and address2=x"FFFF" and credit_o(2) = '1' then
+            if ce2='1' and address2=x"FFFF" then
                 rx(2) <= '1';
                 data_in(2) <= data2;
             elsif credit_o(2)='1' then      -- important: flow control
@@ -152,5 +157,57 @@ begin
             end if;
         end loop;
     end process;
+
+    --------------------------
+
+    com00: Entity work.outmodule
+	port map(
+		clock       => clock(0),
+		reset       => reset,
+		finish      => finish,
+        
+        inClock0    => clock_tx(0),
+		inTx0       => tx(0),
+		inData0     => data_out(0),
+        outCredit0  => credit_i(0),
+        
+		inClock1    => clock_tx(1),
+		inTx1       => tx(1),
+		inData1     => data_out(1),
+        outCredit1  => credit_i(1),
+        
+		inClock2    => clock_tx(2),
+		inTx2       => tx(2),
+		inData2     => data_out(2),
+        outCredit2  => credit_i(2),
+        
+		inClock3    => clock_tx(3),
+		inTx3       => tx(3),
+		inData3     => data_out(3),
+        outCredit3  => credit_i(3),
+        
+		inClock4    => clock_tx(4),
+		inTx4       => tx(4),
+		inData4     => data_out(4),
+        outCredit4  => credit_i(4),
+        
+		inClock5    => clock_tx(5),
+		inTx5       => tx(5),
+		inData5     => data_out(5),
+        outCredit5  => credit_i(5),
+        
+		inClock6    => clock_tx(6),
+		inTx6       => tx(6),
+		inData6     => data_out(6),
+		outCredit6  => credit_i(6),
+		inClock7    => clock_tx(7),
+		inTx7       => tx(7),
+		inData7     => data_out(7),
+		outCredit7  => credit_i(7),
+		inClock8    => clock_tx(8),
+		inTx8       => tx(8),
+		inData8     => data_out(8),
+        outCredit8  => credit_i(8)
+    );
 
 end testbench;
