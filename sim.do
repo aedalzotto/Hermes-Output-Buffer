@@ -5,7 +5,7 @@ vmap work work
 
 sccom -B/usr/bin -g modules/SC_InputModule.cpp
 sccom -B/usr/bin -g modules/OutputModule.cpp -std=c++11
-sccom -B/usr/bin -g modules/SC_OutputModuleRouter.cpp
+sccom -B/usr/bin -g modules/RouterOutputModule.cpp
 sccom -B/usr/bin -link
 
 vcom -work work -93 -explicit hermes/constants.vhd

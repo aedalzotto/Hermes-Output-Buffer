@@ -45,6 +45,9 @@ architecture rtl of noc is
 	signal data_in:		node_no_port_no_reg_flit_size;
 	signal credit_o:	node_no_reg_port_no;
 
+	signal sc_tx, sc_credit_i: sc_node_no_reg_port_no;
+	signal sc_data_out:	sc_node_no_port_no_reg_flit_size;
+
 begin
 
 	nodes: for i in 0 to NODE_NO-1 generate
@@ -149,106 +152,22 @@ begin
 	end generate;
 
 	--! SystemC router sniffer
-	router_output: Entity work.outmodulerouter
+	--! This binding is needed for co-simulation of array of std_logic_vector
+	sc_bind: for node in 0 to NODE_NO-1 generate
+		sc_bind: for router in 0 to PORT_NO-1 generate
+			sc_data_out((node+router+1)*FLIT_SIZE-1 downto (node+router)*FLIT_SIZE) <= data_out(node)(router);
+			sc_tx(node*PORT_NO + router) <= tx(node)(router);
+			sc_credit_i(node*PORT_NO + router) <= credit_i(node)(router);
+		end generate;
+	end generate;
+
+	outmodule: Entity work.RouterOutputModule
 	port map(
 		clock => clock(0),
-		reset => reset,
 
-		tx_r0p0 => tx(0)(EAST),
-		out_r0p0 => data_out(0)(EAST),
-		credit_ir0p0 => credit_i(0)(EAST),
-
-		tx_r0p2 => tx(0)(NORTH),
-		out_r0p2 => data_out(0)(NORTH),
-		credit_ir0p2 => credit_i(0)(NORTH),
-
-		tx_r1p0 => tx(1)(EAST),
-		out_r1p0 => data_out(1)(EAST),
-		credit_ir1p0 => credit_i(1)(EAST),
-
-		tx_r1p1 => tx(1)(WEST),
-		out_r1p1 => data_out(1)(WEST),
-		credit_ir1p1 => credit_i(1)(WEST),
-		
-		tx_r1p2 => tx(1)(NORTH),
-		out_r1p2 => data_out(1)(NORTH),
-		credit_ir1p2 => credit_i(1)(NORTH),
-		
-		tx_r2p1 => tx(2)(WEST),
-		out_r2p1 => data_out(2)(WEST),
-		credit_ir2p1 => credit_i(2)(WEST),
-		
-		tx_r2p2 => tx(2)(NORTH),
-		out_r2p2 => data_out(2)(NORTH),
-		credit_ir2p2 => credit_i(2)(NORTH),
-		
-		tx_r3p0 => tx(3)(EAST),
-		out_r3p0 => data_out(3)(EAST),
-		credit_ir3p0 => credit_i(3)(EAST),
-		
-		tx_r3p2 => tx(3)(NORTH),
-		out_r3p2 => data_out(3)(NORTH),
-		credit_ir3p2 => credit_i(3)(NORTH),
-		
-		tx_r3p3 => tx(3)(SOUTH),
-		out_r3p3 => data_out(3)(SOUTH),
-		credit_ir3p3 => credit_i(3)(SOUTH),
-		
-		tx_r4p0 => tx(4)(EAST),
-		out_r4p0 => data_out(4)(EAST),
-		credit_ir4p0 => credit_i(4)(EAST),
-		
-		tx_r4p1 => tx(4)(WEST),
-		out_r4p1 => data_out(4)(WEST),
-		credit_ir4p1 => credit_i(4)(WEST),
-		
-		tx_r4p2 => tx(4)(NORTH),
-		out_r4p2 => data_out(4)(NORTH),
-		credit_ir4p2 => credit_i(4)(NORTH),
-		
-		tx_r4p3 => tx(4)(SOUTH),
-		out_r4p3 => data_out(4)(SOUTH),
-		credit_ir4p3 => credit_i(4)(SOUTH),
-		
-		tx_r5p1 => tx(5)(WEST),
-		out_r5p1 => data_out(5)(WEST),
-		credit_ir5p1 => credit_i(5)(WEST),
-		
-		tx_r5p2 => tx(5)(NORTH),
-		out_r5p2 => data_out(5)(NORTH),
-		credit_ir5p2 => credit_i(5)(NORTH),
-		
-		tx_r5p3 => tx(5)(SOUTH),
-		out_r5p3 => data_out(5)(SOUTH),
-		credit_ir5p3 => credit_i(5)(SOUTH),
-		
-		tx_r6p0 => tx(6)(EAST),
-		out_r6p0 => data_out(6)(EAST),
-		credit_ir6p0 => credit_i(6)(EAST),
-		
-		tx_r6p3 => tx(6)(SOUTH),
-		out_r6p3 => data_out(6)(SOUTH),
-		credit_ir6p3 => credit_i(6)(SOUTH),
-		
-		tx_r7p0 => tx(7)(EAST),
-		out_r7p0 => data_out(7)(EAST),
-		credit_ir7p0 => credit_i(7)(EAST),
-		
-		tx_r7p1 => tx(7)(WEST),
-		out_r7p1 => data_out(7)(WEST),
-		credit_ir7p1 => credit_i(7)(WEST),
-		
-		tx_r7p3 => tx(7)(SOUTH),
-		out_r7p3 => data_out(7)(SOUTH),
-		credit_ir7p3 => credit_i(7)(SOUTH),
-		
-		tx_r8p1 => tx(8)(WEST),
-		out_r8p1 => data_out(8)(WEST),
-		credit_ir8p1 => credit_i(8)(WEST),
-		
-		tx_r8p3 => tx(8)(SOUTH),
-		out_r8p3 => data_out(8)(SOUTH),
-		credit_ir8p3 => credit_i(8)(SOUTH)
+		tx => sc_tx,
+		data_out => sc_data_out,
+		credit_i => sc_credit_i
 	);
 
 end architecture;

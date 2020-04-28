@@ -7,6 +7,8 @@
  * @date 2020/04
  */
 
+#pragma once
+
 namespace hermes {
 	/* NoC Size */
 	const unsigned int X_SIZE = 3;
