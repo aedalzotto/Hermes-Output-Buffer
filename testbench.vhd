@@ -37,7 +37,6 @@ architecture behavioral of testbench is
 
 	signal finish:	std_logic;
 
-	subtype sc_node_no_reg_flit_size is std_logic_vector(NODE_NO*FLIT_SIZE - 1 downto 0);
 	signal sc_data_out:	sc_node_no_reg_flit_size;
 
 begin

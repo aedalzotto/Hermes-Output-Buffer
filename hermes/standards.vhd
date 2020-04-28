@@ -66,6 +66,9 @@ package standards is
 	--! Data bus for all ports from all nodes
 	type node_no_port_no_reg_flit_size is array((NODE_NO-1) downto 0) of port_no_reg_flit_size;
 
+	--! Data bus for all nodes local port (SystemC bind)
+	subtype sc_node_no_reg_flit_size is std_logic_vector(NODE_NO*FLIT_SIZE - 1 downto 0);
+
 	function router_address(index: integer) return std_logic_vector;
 
 end package;
