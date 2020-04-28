@@ -184,7 +184,9 @@ begin
         data_in5  => data_out(5),
         data_in6  => data_out(6),
         data_in7  => data_out(7),
-        data_in8  => data_out(8)
+		data_in8  => data_out(8),
+		
+		credit_o => credit_i
     );
 
     CREDIT: for i in 0 to NB_ROUTERS-1 generate
