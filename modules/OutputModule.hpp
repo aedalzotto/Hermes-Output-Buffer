@@ -21,6 +21,7 @@ public:
 	sc_in<sc_lv<FLIT_SIZE> > data_in6;
 	sc_in<sc_lv<FLIT_SIZE> > data_in7;
 	sc_in<sc_lv<FLIT_SIZE> > data_in8;
+	sc_out<sc_lv<NODE_NO > > credit_o; 
 
 private:
 	void sniffer();

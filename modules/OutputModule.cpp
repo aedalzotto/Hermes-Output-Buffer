@@ -19,12 +19,15 @@ void OutputModule::sniffer()
 	std::chrono::_V2::steady_clock::time_point then = std::chrono::steady_clock().now();
 
 	// Open all files
+	sc_lv<NODE_NO> aux; 
 	for(int i = 0; i < NODE_NO; i++){
 		std::ostringstream name;
 		name << "out" << i << ".txt";
 		output[i].open(name.str().c_str());
 		output[i] << std::uppercase;
+		aux[i] = SC_LOGIC_1;
 	}
+	credit_o.write(aux);
 
 	// Zero out the flit counter
 	memset(current_flit, NODE_NO, sizeof(uint32_t));
