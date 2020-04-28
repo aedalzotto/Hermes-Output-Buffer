@@ -81,15 +81,9 @@ begin
 		tx_local(i) <= tx(i)(LOCAL); 
 		data_out_local(i) <= data_out(i)(LOCAL);						
 		credit_i(i)(LOCAL) <= credit_i_local(i);
-		
-		--
-		--! @todo Grounding and connections. These can be optimized without the 
-		--! use of the router_position function and by using modulo, division
-		--! and numeric comparisons. 
-		--
 
 		--! Ground east port of easternmost nodes
-		east_grounding: if router_position(i) = SE or router_position(i) = CE or router_position(i) = NE generate
+		east_grounding: if ((i+1) mod X_SIZE) = 0 generate
 			rx(i)(EAST) <= '0';
 			clock_rx(i)(EAST) <= '0';
 			credit_i(i)(EAST) <= '0';
@@ -97,7 +91,7 @@ begin
 		end generate;
 
 		--! Connect east port of not easternmost nodes
-		east_connection: if router_position(i) /= SE and router_position(i) /= CE and router_position(i) /= NE generate
+		east_connection: if ((i+1) mod X_SIZE) /= 0 generate
 			rx(i)(EAST) <= tx(i+1)(WEST);
 			clock_rx(i)(EAST) <= clock_tx(i+1)(WEST);
 			credit_i(i)(EAST) <= credit_o(i+1)(WEST);
@@ -105,7 +99,7 @@ begin
 		end generate;
 
 		--! Ground west port of westernmost nodes
-		west_grounding: if router_position(i) = SW or router_position(i) = CW or router_position(i) = NW generate
+		west_grounding: if (i mod X_SIZE) = 0 generate
 			rx(i)(WEST) <= '0';
 			clock_rx(i)(WEST) <= '0';
 			credit_i(i)(WEST) <= '0';
@@ -113,14 +107,15 @@ begin
 		end generate;
 
 		--! Connect west port of not westernmost nodes
-		west_connection: if router_position(i) /= SW and router_position(i) /= CW and router_position(i) /= NW generate
+		west_connection: if (i mod X_SIZE) /= 0 generate
+			rx(i)(WEST) <= tx(i-1)(EAST);
 			clock_rx(i)(WEST) <= clock_tx(i-1)(EAST);
 			credit_i(i)(WEST) <= credit_o(i-1)(EAST);
 			data_in(i)(WEST) <= data_out(i-1)(EAST);
 		end generate;
 
 		--! Ground north port of northernmost nodes
-		north_grounding: if router_position(i) = NW or router_position(i) = NC or router_position(i) = NE generate
+		north_grounding: if i >= (NODE_NO-X_SIZE) generate
 			rx(i)(NORTH) <= '0';
 			clock_rx(i)(NORTH) <= '0';
 			credit_i(i)(NORTH) <= '0';
@@ -128,7 +123,7 @@ begin
 		end generate;
 
 		--! Connect north port of not northernmost nodes
-		north_connection: if router_position(i) /= NW and router_position(i) /= NC and router_position(i) /= NE generate
+		north_connection: if i < (NODE_NO-X_SIZE) generate
 			rx(i)(NORTH) <= tx(i+X_SIZE)(SOUTH);
 			clock_rx(i)(NORTH) <= clock_tx(i+X_SIZE)(SOUTH);
 			credit_i(i)(NORTH) <= credit_o(i+X_SIZE)(SOUTH);
@@ -136,7 +131,7 @@ begin
 		end generate;
 
 		--! Ground sourth port of southernmost nodes
-		south_grounding: if router_position(i) = SW or router_position(i) = SC or router_position(i) = SE generate
+		south_grounding: if i < X_SIZE generate
 			rx(i)(SOUTH) <= '0';
 			clock_rx(i)(SOUTH) <= '0';
 			credit_i(i)(SOUTH) <= '0';
@@ -144,7 +139,7 @@ begin
 		end generate;
 
 		--! Connect south port of not southernmost nodes
-		south_connection: if router_position(i) /= SW and router_position(i) /= SC and router_position(i) /= SE generate
+		south_connection: if i >= X_SIZE generate
 			rx(i)(SOUTH) <= tx(i-X_SIZE)(NORTH);
 			clock_rx(i)(SOUTH) <= clock_tx(i-X_SIZE)(NORTH);
 			credit_i(i)(SOUTH) <= credit_o(i-X_SIZE)(NORTH);

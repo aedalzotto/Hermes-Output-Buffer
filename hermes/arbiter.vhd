@@ -45,27 +45,15 @@ architecture rtl of arbiter is
 begin
 
 	--! Output data bus muxing
-	data_out <= (others => '0') when target_set = '0' else
-				data_in(EAST) when target = EAST else
-				data_in(WEST) when target = WEST else
-				data_in(NORTH) when target = NORTH else
-				data_in(SOUTH) when target = SOUTH else
-				data_in(LOCAL) when target = LOCAL;
+	data_out <= (others => '0') when target_set = '0' else data_in(target);
 
 	--! Output TX muxing
-	tx <= 	'0' when target_set = '0' else
-			data_av(EAST) when target = EAST else
-			data_av(WEST) when target = WEST else
-			data_av(NORTH) when target = NORTH else
-			data_av(SOUTH) when target = SOUTH else
-			data_av(LOCAL) when target = LOCAL;
+	tx <= '0' when target_set = '0' else data_av(target);
 
 	--! Input data_ack demuxing
-	data_ack(EAST) <= credit_i when target_set = '1' and target = EAST else '0';
-	data_ack(WEST) <= credit_i when target_set = '1' and target = WEST else '0';
-	data_ack(NORTH) <= credit_i when target_set = '1' and target = NORTH else '0';
-	data_ack(SOUTH) <= credit_i when target_set = '1' and target = SOUTH else '0';
-	data_ack(LOCAL) <= credit_i when target_set = '1' and target = LOCAL else '0';
+	ack: for i in 0 to PORT_NO-1 generate
+		data_ack(i) <= credit_i when target_set = '1' and target = i else '0';
+	end generate;
 
 	process(reset, clock)
 	begin

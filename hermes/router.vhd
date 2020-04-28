@@ -67,11 +67,9 @@ begin
 	credit_o <= credit_i(target) when target_set = '1' else not rx;
 
 	--! Output buffer muxing
-	tx(LOCAL) <= rx when target = LOCAL and target_set = '1' else '0';
-	tx(NORTH) <= rx when target = NORTH and target_set = '1' else '0';
-	tx(SOUTH) <= rx when target = SOUTH and target_set = '1' else '0';
-	tx(EAST) <= rx when target = EAST and target_set = '1' else '0';
-	tx(WEST) <= rx when target = WEST and target_set = '1' else '0';
+	txb: for i in 0 to PORT_NO-1 generate
+		tx(i) <= rx when target = i and target_set = '1' else '0';
+	end generate;
 
 	process(reset, clock)
 	begin

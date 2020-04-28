@@ -1,5 +1,5 @@
 --
---! @file noc.vhd
+--! @file testbench.vhd
 --! @brief Hermes generic NoC testbench.
 --! @details Interfaces the NoC with the packet sniffer and injector from
 --! SystemC.

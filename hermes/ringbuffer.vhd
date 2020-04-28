@@ -32,9 +32,8 @@ entity ringbuffer is
 end entity;
 
 architecture rtl of ringbuffer is
-	-- signal ringbuffer: buffer_t := (others=>(others=>'0'));
 	--! Storage and pointers
-	signal ringbuffer: buffer_t;
+	signal storage: buffer_t;
 	signal read_pointer, write_pointer: pointer;
 
 	--! State Machine
@@ -52,7 +51,7 @@ begin
 	credit_o <= '1' when write_pointer /= read_pointer else '0';
 
 	--! Output is connected to data pointing from the read pointer.
-	data_out <= ringbuffer(conv_integer(read_pointer));
+	data_out <= storage(conv_integer(read_pointer));
 
 	--! Buffer write process
 	process(reset, clock)
@@ -62,7 +61,7 @@ begin
 		elsif rising_edge(clock) then
 			--! If receiving data and fifo isn't empty, record data in fifo and increase write pointer
 			if rx = '1' and write_pointer /= read_pointer then
-				ringbuffer(conv_integer(write_pointer)) <= data_in;
+				storage(conv_integer(write_pointer)) <= data_in;
 				write_pointer <= write_pointer + 1;
 			end if;
 		end if;

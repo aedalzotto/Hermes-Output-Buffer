@@ -38,10 +38,6 @@ architecture rtl of node is
 	type port_no_port_no_reg_flit_size is array((PORT_NO-1) downto 0) of port_no_reg_flit_size;
 	type port_no_reg_port_no is array((PORT_NO-1) downto 0) of reg_port_no;
 
-	--! Router - Buffers - Arbiter middle connections
-	signal clock_buffers:		port_no_reg_port_no;
-	signal clock_rx_buffers:	port_no_reg_port_no;
-
 	signal tx_router2buffer:		port_no_reg_port_no;
 	signal credit_buffer2router:	port_no_reg_port_no;
 
@@ -49,11 +45,10 @@ architecture rtl of node is
 	signal ack_arbiter2buffer:			port_no_reg_port_no;
 	
 	signal data_buffer2arbiter:	port_no_port_no_reg_flit_size;
-	signal data_router2buffer: 	port_no_port_no_reg_flit_size;
 
 begin
-	--! Generate all nodes
-	nodes : for i in 0 to (PORT_NO-1) generate
+	--! Generate all ports
+	ports : for i in 0 to (PORT_NO-1) generate
 		--! Clock TX: I really don't know why this is needed.
 		clock_tx(i) <= clock;
 
@@ -92,38 +87,40 @@ begin
 
 		--! Output buffers
 		buffers: for j in 0 to PORT_NO-1 generate
-			clock_buffers(i)(j) <= clock;
-			clock_rx_buffers(i)(j) <= clock_rx(i);
-			data_router2buffer(i)(j) <= data_in(i);
+			connection: if i /= j generate
+				ringbuffer: entity work.ringbuffer
+				port map(
+					clock => clock,
+					reset => reset,
 
-			ringbuffer: entity work.ringbuffer
-			port map(
-				clock => clock_buffers(i)(j),
-				reset => reset,
+					clock_rx => clock_rx(i),
+					rx => tx_router2buffer(i)(j),
+					data_in => data_in(i),
+					credit_o => credit_buffer2router(i)(j),
 
-				clock_rx => clock_rx_buffers(i)(j),
-				rx => tx_router2buffer(i)(j),
-				data_in => data_router2buffer(i)(j),
-				credit_o => credit_buffer2router(i)(j),
-
-				data_out => data_buffer2arbiter(j)(i),
-				data_av => available_buffer2arbiter(j)(i),
-				data_ack => ack_arbiter2buffer(j)(i)
-			);
-
-			--! Ground when input and output are the same
-			buffer_gnd: if i = j generate
-				clock_buffers(i)(j) <= '0';
-
-				clock_rx_buffers(i)(j) <= '0';
-				tx_router2buffer(i)(j) <= '0';
-				data_router2buffer(i)(j) <= (others => '0');
-				credit_buffer2router(i)(j) <= '0';
-
-				data_buffer2arbiter(j)(i) <= (others => '0');
-				available_buffer2arbiter(j)(i) <= '0';
-				ack_arbiter2buffer(j)(i) <= '0';
+					data_out => data_buffer2arbiter(j)(i),
+					data_av => available_buffer2arbiter(j)(i),
+					data_ack => ack_arbiter2buffer(j)(i)
+				);
 			end generate;
+
+			grounding: if i = j generate
+				ringbuffer: entity work.ringbuffer
+				port map(
+					clock => '0',
+					reset => reset,
+
+					clock_rx => '0',
+					rx => '0',
+					data_in => (others => '0'),
+					credit_o => credit_buffer2router(i)(j),
+
+					data_out => data_buffer2arbiter(j)(i),
+					data_av => available_buffer2arbiter(j)(i),
+					data_ack => '0'
+				);
+			end generate;
+
 		end generate;
 
 	end generate;

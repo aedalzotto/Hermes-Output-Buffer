@@ -66,87 +66,11 @@ package standards is
 	--! Data bus for all ports from all nodes
 	type node_no_port_no_reg_flit_size is array((NODE_NO-1) downto 0) of port_no_reg_flit_size;
 
-	--! Router position
-	constant SW: integer := 0;	--! South-West
-	constant SC: integer := 1;	--! Center-South
-	constant SE: integer := 2;	--! South-East
-	constant CW: integer := 3;	--! Center-West
-	constant CC: integer := 4;	--! Center
-	constant CE: integer := 5; 	--! Center-East
-	constant NW: integer := 6;	--! North-West
-	constant NC: integer := 7;	--! Center-North
-	constant NE: integer := 8;	--! North-East
-	subtype position is integer range 0 to NE;
-	
-	function router_position(index: integer) return integer;
 	function router_address(index: integer) return std_logic_vector;
 
 end package;
 
 package body standards is 
-				
-	--
-	--! @brief Returns the router position in the mesh.
-	--! @detail See position subtype
-	--! @param index The index of the node.
-	--! @return position The position enum in the mesh.
-	function router_position(index: integer) return position is
-		variable pos: position;
-		variable line, column: integer;
-	begin
-
-		column := index mod X_SIZE;
-		
-		--! NORTH
-		if index >= (NODE_NO)-X_SIZE then
-			--! EAST
-			if column = X_SIZE-1 then
-				pos := NE;
-			
-			--! WEST
-			elsif column = 0 then
-				pos := NW;
-
-			--! CENTER X
-			else
-				pos := NC;
-			end if;
-
-		--! SOUTH
-		elsif index < X_SIZE then
-			--! EAST
-			if column = X_SIZE-1 then
-				pos := SE;
-
-			--! WEST
-			elsif column = 0 then
-				pos := SW;
-			
-			--! CENTER X
-			else
-				pos := SC;
-			end if;
-		
-		--! CENTER Y
-		else
-			--! EAST
-			if column = X_SIZE-1 then
-				pos := CE; 
-
-			--! WEST
-			elsif column = 0 then
-				pos := CW;
-
-			--! CENTER X
-			else
-				pos := CC;
-			end if;
-		end if; 
-		
-		--report "POS "	& integer'image(pos) & "	" & integer'image(router)	& "	" &	integer'image(X_ROUTERS) & "	" & integer'image(Y_ROUTERS);
-		
-		return pos;
-	end function;
 	
 	--
 	--! @brief Get router address based on iterator index
