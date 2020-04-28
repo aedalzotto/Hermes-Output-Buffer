@@ -8,9 +8,10 @@ sccom -B/usr/bin -g modules/SC_OutputModule.cpp
 sccom -B/usr/bin -g modules/SC_OutputModuleRouter.cpp
 sccom -B/usr/bin -link
 
-vcom -work work -93 -explicit hermes/Hermes_package.vhd
+vcom -work work -93 -explicit hermes/constants.vhd
+vcom -work work -93 -explicit hermes/standards.vhd
 vcom -work work -93 -explicit hermes/router.vhd
-vcom -work work -93 -explicit hermes/outbuffer.vhd
+vcom -work work -93 -explicit hermes/ringbuffer.vhd
 vcom -work work -93 -explicit hermes/arbiter.vhd
 vcom -work work -93 -explicit hermes/node.vhd
 vcom -work work -93 -explicit hermes/noc.vhd
