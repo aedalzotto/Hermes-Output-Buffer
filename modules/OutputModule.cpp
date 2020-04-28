@@ -51,11 +51,18 @@ void OutputModule::sniffer()
 	/* Simulation start time */
 	system_clock::time_point then = high_resolution_clock().now();
 
+	/* Simulation stop control */
+	bool transmitting[NODE_NO];
+	memset(transmitting, NODE_NO, sizeof(bool));
+	uint64_t timeout = 0;
+
 	while(true){
 		cycle++;
 		for(int i = 0; i < NODE_NO; i++){
 			/* Receiving data */
 			if(tx_local.read().bit(i) == SC_LOGIC_1){
+				transmitting[i] = true;
+
 				// First flit: TARGET
 				sc_reg_flit_size incoming= data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_ulong();
 
@@ -75,7 +82,7 @@ void OutputModule::sniffer()
 				} else if(current_flit[i] < 7){	// Flits 3, 4, 5 and 6: timestamp node out
 					fprintf(output[i], " %0*X", FLIT_SIZE/4, incoming.value());
 
-					timestamp_core[i] += (unsigned long int)(incoming.value() * pow(2,((8 - current_flit[i])*FLIT_SIZE)));
+					timestamp_core[i] += (uint64_t)(incoming.value() * pow(2,((6 - current_flit[i])*FLIT_SIZE)));
 
 					flit_count[i]--;
 					current_flit[i]++;
@@ -116,10 +123,29 @@ void OutputModule::sniffer()
 						fprintf(output[i], " %ld\n", duration);
 
 						current_flit[i] = 0;
+						transmitting[i] = false;
+						timestamp_core[i] = 0;
+						timestamp_net[i] = 0;
 					}
 				}
 			}
 			fflush(output[i]);
+		}
+		if(finish == SC_LOGIC_1){
+			bool transmit = false;
+			for(int i = 0; i < NODE_NO; i++){
+				if(transmitting[i]){
+					transmit = true;
+					break;
+				}
+			}
+			if(transmit)
+				timeout=0;
+			else {
+				timeout++;
+				if(timeout>1000)
+					sc_stop();
+			}
 		}
 		wait();
 	}

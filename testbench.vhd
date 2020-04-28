@@ -68,7 +68,8 @@ begin
 
 	outmodule: Entity work.OutputModule
 	port map(
-        clock    => clock(0),
+		clock => clock(0),
+		finish => finish,
 
         tx_local => tx,
         data_in => sc_data_out,
