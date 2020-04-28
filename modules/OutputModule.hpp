@@ -12,16 +12,8 @@ public:
 
 	sc_in_clk clock;
 	sc_in<sc_lv<NODE_NO> > tx_local;
-	sc_in<sc_lv<FLIT_SIZE> > data_in0;
-	sc_in<sc_lv<FLIT_SIZE> > data_in1;
-	sc_in<sc_lv<FLIT_SIZE> > data_in2;
-	sc_in<sc_lv<FLIT_SIZE> > data_in3;
-	sc_in<sc_lv<FLIT_SIZE> > data_in4;
-	sc_in<sc_lv<FLIT_SIZE> > data_in5;
-	sc_in<sc_lv<FLIT_SIZE> > data_in6;
-	sc_in<sc_lv<FLIT_SIZE> > data_in7;
-	sc_in<sc_lv<FLIT_SIZE> > data_in8;
-	sc_out<sc_lv<NODE_NO > > credit_o; 
+	sc_in<sc_lv<(FLIT_SIZE*NODE_NO)> > data_in;
+	sc_out<sc_lv<NODE_NO > > credit_o;
 
 private:
 	void sniffer();
@@ -32,5 +24,4 @@ private:
 	uint64_t timestamp_net[NODE_NO];
 	uint64_t cycle;
 
-	uint16_t data_in(int idx);
 };

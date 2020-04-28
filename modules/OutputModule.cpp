@@ -43,45 +43,45 @@ void OutputModule::sniffer()
 			if(tx_local.read().bit(i) == SC_LOGIC_1){
 				// First flit: TARGET
 				if(!current_flit[i]){
-					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in(i);
+					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();
 					current_flit[i]++;
 				} else if(current_flit[i] == 1){
 					output[i] << std::setfill('\0') << std::setw(0) << std::dec << " ";
-					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in(i);
+					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();
 
-					flit_count[i] = data_in(i);
+					flit_count[i] = data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();
 					current_flit[i]++;
 				} else if(current_flit[i] == 2){	// SOURCE
 					output[i] << std::setfill('\0') << std::setw(0) << std::dec << " ";
-					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in(i);
+					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else if(current_flit[i] < 7){	// Flits 3, 4, 5 and 6: timestamp node out
 					output[i] << std::setfill('\0') << std::setw(0) << std::dec << " ";
-					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in(i);
+					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();
 
-					timestamp_core[i] += (unsigned long int)(data_in(i) * pow(2,((8 - current_flit[i])*FLIT_SIZE)));
+					timestamp_core[i] += (unsigned long int)(data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint() * pow(2,((8 - current_flit[i])*FLIT_SIZE)));
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else if(current_flit[i] < 9){	// Flits 7 and 8: sequence number
 					output[i] << std::setfill('\0') << std::setw(0) << std::dec << " ";
-					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in(i);
+					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else if(current_flit[i] < 13){	// Flits 9, 10, 11 and 12: timestamp network in 
 					output[i] << std::setfill('\0') << std::setw(0) << std::dec << " ";
-					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in(i);
+					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();
 
-					timestamp_net[i] += (unsigned long int)(data_in(i) * pow(2,((12 - current_flit[i])*FLIT_SIZE)));
+					timestamp_net[i] += (unsigned long int)(data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint() * pow(2,((12 - current_flit[i])*FLIT_SIZE)));
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else { // Payload
 					output[i] << std::setfill('\0') << std::setw(0) << std::dec << " ";
-					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in(i);;
+					output[i] << std::setfill('0') << std::setw(4) << std::hex << data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint();;
 
 					flit_count[i]--;
 					current_flit[i]++;
@@ -113,17 +113,4 @@ void OutputModule::sniffer()
 		wait();
 	}
 	
-}
-
-uint16_t OutputModule::data_in(int idx)
-{
-	if(idx == 0) return data_in0.read().to_uint();
-	else if(idx == 1) return (uint16_t)data_in1.read().to_uint();
-	else if(idx == 2) return (uint16_t)data_in2.read().to_uint();
-	else if(idx == 3) return (uint16_t)data_in3.read().to_uint();
-	else if(idx == 4) return (uint16_t)data_in4.read().to_uint();
-	else if(idx == 5) return (uint16_t)data_in5.read().to_uint();
-	else if(idx == 6) return (uint16_t)data_in6.read().to_uint();
-	else if(idx == 7) return (uint16_t)data_in7.read().to_uint();
-	else return data_in8.read().to_uint();
 }

@@ -12,12 +12,13 @@
 library ieee;
 use IEEE.std_logic_1164.all;
 use work.standards.all;
+use work.constants.all;
 
 entity testbench is
 
 end;
 
-architecture testbench of testbench is
+architecture behavioral of testbench is
 
 	signal clock: reg_node_no := (others=>'1');
 	signal reset: std_logic;
@@ -36,8 +37,15 @@ architecture testbench of testbench is
 
 	signal finish:	std_logic;
 
+	subtype sc_node_no_reg_flit_size is std_logic_vector(NODE_NO*FLIT_SIZE - 1 downto 0);
+	signal sc_data_out:	sc_node_no_reg_flit_size;
+
 begin
 	reset <= '1', '0' after 15 ns;
+
+	sc_bind: for i in 0 to NODE_NO-1 generate
+		sc_data_out((i+1)*FLIT_SIZE-1 downto i*FLIT_SIZE) <= data_out(i);
+	end generate;
 
 	clocks: for i in 0 to NODE_NO-1 generate
 		clock(i) <= not clock(i) after 10 ns;
@@ -64,15 +72,7 @@ begin
         clock    => clock(0),
 
         tx_local => tx,
-        data_in0  => data_out(0),
-        data_in1  => data_out(1),
-        data_in2  => data_out(2),
-        data_in3  => data_out(3),
-        data_in4  => data_out(4),
-        data_in5  => data_out(5),
-        data_in6  => data_out(6),
-        data_in7  => data_out(7),
-		data_in8  => data_out(8),
+        data_in => sc_data_out,
 		credit_o => credit_i
     );
 
@@ -128,4 +128,4 @@ begin
 		incredit8 => credit_o(8)
 	);
 
-end testbench;
+end architecture;
