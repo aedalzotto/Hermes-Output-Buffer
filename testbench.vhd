@@ -189,8 +189,4 @@ begin
 		credit_o => credit_i
     );
 
-    CREDIT: for i in 0 to NB_ROUTERS-1 generate
-        credit_i(i) <= '1'; 
-    end generate; 
-
 end testbench;
