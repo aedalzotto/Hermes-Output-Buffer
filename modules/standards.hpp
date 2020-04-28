@@ -1,7 +1,6 @@
 /*
- * @file standards.vhd
+ * @file standards.hpp
  * @brief Constants and types generation for Hermes generic NoC with output buffers.
- * @author ?
  * @author Angelo Elias Dalzotto (angelo.dalzotto@edu.pucrs.br)
  * @author Nicolas Lodea (nicolas.lodea@edu.pucrs.br)
  * @date 2020/04

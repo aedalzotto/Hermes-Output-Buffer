@@ -1,3 +1,13 @@
+/*
+ * @file OutputModule.hpp
+ * @brief Output module for VHDL simulation of generic Hermes NoC.
+ * @detail This sniffs the network and generates a text file with the local
+ * ports output informations.
+ * @author Angelo Elias Dalzotto (angelo.dalzotto@edu.pucrs.br)
+ * @author Nicolas Lodea (nicolas.lodea@edu.pucrs.br)
+ * @date 2020/04
+ */
+
 #pragma once
 
 #include "standards.hpp"
@@ -15,6 +25,11 @@ public:
 	sc_out<hermes::reg_node_no> credit_o;
 
 private:
+	/**
+	 * @brief Network sniffing process.
+	 * @detail Sensitive to clock rising edge. Reads all local output ports and
+	 * log them to text.
+	 */
 	void sniffer();
 
 };

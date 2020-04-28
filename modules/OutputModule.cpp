@@ -1,3 +1,13 @@
+/*
+ * @file OutputModule.cpp
+ * @brief Output module for VHDL simulation of generic Hermes NoC.
+ * @detail This sniffs the network and generates a text file with the local
+ * ports output informations.
+ * @author Angelo Elias Dalzotto (angelo.dalzotto@edu.pucrs.br)
+ * @author Nicolas Lodea (nicolas.lodea@edu.pucrs.br)
+ * @date 2020/04
+ */
+
 #include "OutputModule.hpp"
 
 #include <cstdio>
@@ -17,6 +27,15 @@ OutputModule::OutputModule(sc_module_name _name) : sc_module(_name)
 	SC_CTHREAD(sniffer, clock.pos());
 }
 
+/**
+ * Output Format:
+ * target	size	source	timestamp node exit		sequence no.	timestamp net enter		payload
+ *  00XX	XXXX	 00XX 	XXXX XXXX XXXX XXXX		 XXXX XXXX		XXXX XXXX XXXX XXXX		XXXX...
+ * 
+ * Packet end:
+ * timestamp netw exit		timestamp node exit		timestamp net in	timestamp net exit	delay	simulation time (ms)
+ * XXXX XXXX XXXX XXXX				dec					  dec				   dec			 dec		   dec
+ */
 void OutputModule::sniffer() 
 {
 	/* Output files. One for each local port output. */
