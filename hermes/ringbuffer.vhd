@@ -80,7 +80,7 @@ begin
 				--! Buffer has been emptied
 				when S_EMPTY =>
 					--! When buffer has been emptied, check when a new data is available
-					if (read_pointer + 1 /= write_pointer) then
+					if rx = '1' then
 						--! The buffer reader starts at "-1", so is needed to increment 1 to set data as available.
 						read_pointer <= read_pointer + 1;
 						data_av <= '1';
@@ -91,7 +91,7 @@ begin
 				when S_BURST =>
 					--! If data has been read
 					if data_ack = '1' then
-						if (read_pointer + 1 = write_pointer) then
+						if (read_pointer + 1 = write_pointer) and rx = '0' then
 							--! The buffer has been emptied by the read
 							data_av <= '0';
 							active_state <= S_EMPTY;
