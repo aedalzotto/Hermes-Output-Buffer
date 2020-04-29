@@ -64,15 +64,15 @@ void OutputModule::sniffer()
 	uint64_t cycle = 0;
 
 	/* All statistics starts zeroed */
-	memset(timestamp_core, NODE_NO, sizeof(uint64_t));
-	memset(timestamp_net, NODE_NO, sizeof(uint64_t));
+	memset(timestamp_core, 0, NODE_NO*sizeof(uint64_t));
+	memset(timestamp_net, 0, NODE_NO*sizeof(uint64_t));
 
 	/* Simulation start time */
 	system_clock::time_point then = high_resolution_clock().now();
 
 	/* Simulation stop control */
 	bool transmitting[NODE_NO];
-	memset(transmitting, NODE_NO, sizeof(bool));
+	memset(transmitting, 0, NODE_NO*sizeof(bool));
 	uint64_t timeout = 0;
 
 	while(true){
