@@ -48,4 +48,26 @@ namespace hermes {
 	/* Unsigned ector for node number control */
 	typedef sc_uint<NODE_NO> sc_reg_node_no;
 
+	/**
+	 * @brief Sets single bit of output port.
+	 * @param out Reference to output object.
+	 * @param i The bit position to set.
+	 */
+	void set_bit(sc_inout<reg_node_no> &out, uint64_t i);
+
+	/**
+	 * @brief Clears single bit of output port.
+	 * @param out Reference to output object.
+	 * @param i The bit position to set.
+	 */
+	void clear_bit(sc_inout<reg_node_no> &out, uint64_t i);
+
+	/**
+	 * @brief Sets the bus to the value inserted
+	 * @param out Reference to output object.
+	 * @param hi High bit position of range.
+	 * @param lo Low bit position of range.
+	 * @param val Value to write.
+	 */
+	void write_range(sc_inout<sc_node_no_reg_flit_size> &out, uint64_t hi, uint64_t lo, reg_flit_size val);
 };

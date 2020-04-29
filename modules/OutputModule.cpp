@@ -44,19 +44,16 @@ void OutputModule::sniffer()
 	/* Flow control */
 	sc_reg_flit_size current_flit[NODE_NO];
 	sc_reg_flit_size flit_count[NODE_NO];
+	credit_o.write(__UINT64_MAX__);
 
 	/* Open all files and set all output credits as high */
-	/* Zero flit count */
-	reg_node_no aux; 
 	for(int i = 0; i < NODE_NO; i++){
 		char name[255];
 		sprintf(name, "out%d.txt", i);
 		output[i] = fopen(name,"w");
-		aux[i] = SC_LOGIC_1;
 		flit_count[i] = 0;
 		current_flit[i] = 0;
 	}
-	credit_o.write(aux);
 
 	/* Statistics */
 	uint64_t timestamp_core[NODE_NO];
@@ -71,8 +68,7 @@ void OutputModule::sniffer()
 	system_clock::time_point then = high_resolution_clock().now();
 
 	/* Simulation stop control */
-	bool transmitting[NODE_NO];
-	memset(transmitting, 0, NODE_NO*sizeof(bool));
+	uint64_t transmitting = 0;
 	uint64_t timeout = 0;
 
 	while(true){
@@ -80,12 +76,11 @@ void OutputModule::sniffer()
 		for(int i = 0; i < NODE_NO; i++){
 			/* Receiving data */
 			if(tx_local.read().bit(i) == SC_LOGIC_1){
-				transmitting[i] = true;
-
 				// First flit: TARGET
 				sc_reg_flit_size incoming= data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_ulong();
 
 				if(!current_flit[i]){
+					transmitting++;
 					fprintf(output[i], "%0*X", FLIT_SIZE/4, incoming.value());
 					current_flit[i]++;
 				} else if(current_flit[i] == 1){
@@ -129,7 +124,7 @@ void OutputModule::sniffer()
 						int64_t duration = duration_cast<milliseconds>(now - then).count();
 
 						ostringstream oss;
-						oss << setw(FLIT_SIZE) << setfill('0') << hex << cycle;
+						oss << setw(FLIT_SIZE) << setfill('0') << hex << uppercase << cycle;
 
 						for(int j = 0; j < oss.str().length(); j += FLIT_SIZE/4){
 							fprintf(output[i], " %s", oss.str().substr(j, FLIT_SIZE/4).c_str());
@@ -142,7 +137,7 @@ void OutputModule::sniffer()
 						fprintf(output[i], " %ld\n", duration);
 
 						current_flit[i] = 0;
-						transmitting[i] = false;
+						transmitting--;
 						timestamp_core[i] = 0;
 						timestamp_net[i] = 0;
 					}
@@ -151,14 +146,7 @@ void OutputModule::sniffer()
 			fflush(output[i]);
 		}
 		if(finish == SC_LOGIC_1){
-			bool transmit = false;
-			for(int i = 0; i < NODE_NO; i++){
-				if(transmitting[i]){
-					transmit = true;
-					break;
-				}
-			}
-			if(transmit)
+			if(transmitting)
 				timeout=0;
 			else {
 				timeout++;
