@@ -16,7 +16,4 @@ namespace hermes {
 
 	/* Channel width, also the flit width */
 	const unsigned int FLIT_SIZE = 16;
-
-	/* Traffic path */
-	// const std::string traffic = "sc2";
 };

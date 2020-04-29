@@ -72,7 +72,7 @@ void OutputModule::sniffer()
 	uint64_t timeout = 0;
 
 	while(true){
-		cycle++;
+		
 		for(int i = 0; i < NODE_NO; i++){
 			/* Receiving data */
 			if(tx_local.read().bit(i) == SC_LOGIC_1){
@@ -154,6 +154,7 @@ void OutputModule::sniffer()
 					sc_stop();
 			}
 		}
+		cycle++;
 		wait();
 	}
 	

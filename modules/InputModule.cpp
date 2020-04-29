@@ -112,7 +112,6 @@ void InputModule::injector()
 	uint64_t cycle = 0;
 
 	while(true){
-		cycle++;
 		/* Initialize signals */
 		for(int i = 0; i < NODE_NO; i++){
 			/* Check if can inject and has input file */
@@ -203,6 +202,8 @@ void InputModule::injector()
 		data_out.write(data_bus);
 		if(!active_cnt)
 			finish.write(SC_LOGIC_1);
+		
+		cycle++;
 		wait();
 	}
 
