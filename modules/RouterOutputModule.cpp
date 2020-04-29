@@ -8,7 +8,7 @@
  * @date 2020/04
  */
 
-#include "RouterOuputModule.hpp"
+#include "RouterOutputModule.hpp"
 
 #include <cstdio>
 
