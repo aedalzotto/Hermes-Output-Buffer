@@ -99,6 +99,7 @@ void InputModule::injector()
 
 	tx_bus = 0;
 	data_bus = 0;
+	finish.write(SC_LOGIC_0);
 
 	// tx.write(0);
 	// data_out.write(0);
@@ -200,6 +201,8 @@ void InputModule::injector()
 		}
 		tx.write(tx_bus);
 		data_out.write(data_bus);
+		if(!active_cnt)
+			finish.write(SC_LOGIC_1);
 		wait();
 	}
 

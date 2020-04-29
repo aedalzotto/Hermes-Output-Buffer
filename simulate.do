@@ -21,3 +21,11 @@ vsim -t 10ps work.testbench
 
 set StdArithNoWarnings 1
 set StdVitalGlitchNoWarnings 1
+
+set StdArithNoWarnings 1
+set StdVitalGlitchNoWarnings 1
+
+run 10 us
+
+quit -sim
+quit -f
