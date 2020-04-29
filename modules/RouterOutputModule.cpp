@@ -71,8 +71,8 @@ void RouterOutputModule::sniffer()
 
 			/* Not easternmost. Has east ports */
 			if((node+1) % X_SIZE){
-				if(tx.read().bit(node*PORT_NO + EAST) == SC_LOGIC_1 && credit_i.read().bit(node*PORT_NO + EAST) == SC_LOGIC_1){
-					sc_reg_flit_size incoming = data_out.read().range((node + EAST + 1)*FLIT_SIZE - 1, (node + EAST)*FLIT_SIZE).to_ulong();
+				if(tx.read().bit(node*PORT_NO + EAST) == 1 && credit_i.read().bit(node*PORT_NO + EAST) == 1){
+					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + EAST + 1)*FLIT_SIZE - 1, (node*PORT_NO + EAST)*FLIT_SIZE).to_uint64();
 					fprintf(output[node][EAST], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
 					current_flit[node][EAST]++;
 					
@@ -90,8 +90,8 @@ void RouterOutputModule::sniffer()
 			}
 			/* Not westernmost. Has west ports */
 			if(node % X_SIZE){
-				if(tx.read().bit(node*PORT_NO + WEST) == SC_LOGIC_1 && credit_i.read().bit(node*PORT_NO + WEST) == SC_LOGIC_1){
-					sc_reg_flit_size incoming = data_out.read().range((node + WEST + 1)*FLIT_SIZE - 1, (node + WEST)*FLIT_SIZE).to_ulong();
+				if(tx.read().bit(node*PORT_NO + WEST) == 1 && credit_i.read().bit(node*PORT_NO + WEST) == 1){
+					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + WEST + 1)*FLIT_SIZE - 1, (node*PORT_NO + WEST)*FLIT_SIZE).to_uint64();
 					fprintf(output[node][WEST], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
 					current_flit[node][WEST]++;
 					
@@ -109,8 +109,8 @@ void RouterOutputModule::sniffer()
 			}
 			/* Not northernmost. Has north ports */
 			if(node < NODE_NO-X_SIZE){
-				if(tx.read().bit(node*PORT_NO + NORTH) == SC_LOGIC_1 && credit_i.read().bit(node*PORT_NO + NORTH) == SC_LOGIC_1){
-					sc_reg_flit_size incoming = data_out.read().range((node + NORTH + 1)*FLIT_SIZE - 1, (node + NORTH)*FLIT_SIZE).to_ulong();
+				if(tx.read().bit(node*PORT_NO + NORTH) == 1 && credit_i.read().bit(node*PORT_NO + NORTH) == 1){
+					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + NORTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + NORTH)*FLIT_SIZE).to_uint64();
 					fprintf(output[node][NORTH], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
 					current_flit[node][NORTH]++;
 					
@@ -128,8 +128,8 @@ void RouterOutputModule::sniffer()
 			}
 			/* Not southernmost. Has south ports */
 			if(node >= X_SIZE){
-				if(tx.read().bit(node*PORT_NO + SOUTH) == SC_LOGIC_1 && credit_i.read().bit(node*PORT_NO + SOUTH) == SC_LOGIC_1){
-					sc_reg_flit_size incoming = data_out.read().range((node + SOUTH + 1)*FLIT_SIZE - 1, (node + SOUTH)*FLIT_SIZE).to_ulong();
+				if(tx.read().bit(node*PORT_NO + SOUTH) == 1 && credit_i.read().bit(node*PORT_NO + SOUTH) == 1){
+					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + SOUTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + SOUTH)*FLIT_SIZE).to_uint64();
 					fprintf(output[node][SOUTH], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
 					current_flit[node][SOUTH]++;
 					

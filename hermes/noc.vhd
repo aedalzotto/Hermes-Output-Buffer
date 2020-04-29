@@ -155,13 +155,13 @@ begin
 	--! This binding is needed for co-simulation of array of std_logic_vector
 	sc_bind: for node in 0 to NODE_NO-1 generate
 		sc_bind: for router in 0 to PORT_NO-1 generate
-			sc_data_out((node+router+1)*FLIT_SIZE-1 downto (node+router)*FLIT_SIZE) <= data_out(node)(router);
+			sc_data_out((node*PORT_NO + router + 1)*FLIT_SIZE - 1 downto (node*PORT_NO + router)*FLIT_SIZE) <= data_out(node)(router);
 			sc_tx(node*PORT_NO + router) <= tx(node)(router);
 			sc_credit_i(node*PORT_NO + router) <= credit_i(node)(router);
 		end generate;
 	end generate;
 
-	outmodule: Entity work.RouterOutputModule
+	routeroutmodule: Entity work.RouterOutputModule
 	port map(
 		clock => clock(0),
 
