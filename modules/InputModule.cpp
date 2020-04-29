@@ -1,5 +1,5 @@
 /*
- * @file Input.cpp
+ * @file InputModule.cpp
  * @brief Input module for VHDL simulation of generic Hermes NoC.
  * @detail This reads an input scenario and injects to the NoC.
  * @author Angelo Elias Dalzotto (angelo.dalzotto@edu.pucrs.br)
@@ -93,8 +93,15 @@ void InputModule::injector()
 
 	}
 
-	tx.write(0);
-	data_out.write(0);
+	/* Temporary signals for attribution */
+	sc_node_no_reg_flit_size data_bus;
+	reg_node_no	tx_bus;
+
+	tx_bus = 0;
+	data_bus = 0;
+
+	// tx.write(0);
+	// data_out.write(0);
 
 	/* Flow Control */
 	uint64_t current_flit[NODE_NO];
@@ -108,14 +115,14 @@ void InputModule::injector()
 		/* Initialize signals */
 		for(int i = 0; i < NODE_NO; i++){
 			/* Check if can inject and has input file */
-			if(active[i]){
+			if(active[i] && reset.read() != SC_LOGIC_1){
 				if(!current_flit[i]) {
 					if(cycle >= start_time[i]){
 						/* Wait for injection time */
 						if(credit_i.read().bit(i) == 1){
 							/* Inject header */
-							set_bit(tx, i);
-							write_range(data_out, (i+1)*FLIT_SIZE-1, i*FLIT_SIZE, packet[i][current_flit[i]++]);
+							tx_bus[i] = 1;
+							data_bus.range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE) = packet[i][current_flit[i]++];
 
 							/* Generate the network enter timestamp */
 							char aux[255];
@@ -125,7 +132,7 @@ void InputModule::injector()
 							oss << setw(FLIT_SIZE) << setfill('0') << hex << uppercase << cycle;
 
 							int k = 9;
-							for(int j = 0; j < oss.str().length(); j += FLIT_SIZE/4){
+							for(int j = 0; j < FLIT_SIZE; j += FLIT_SIZE/4){
 								uint64_t flit;
 								sscanf(oss.str().substr(j, FLIT_SIZE/4).c_str(), "%X", &flit);
 								packet[i][k++] = flit;
@@ -136,15 +143,15 @@ void InputModule::injector()
 				} else if(current_flit[i] < packet[i][1]+2){
 					/* Send the payload size + payload */
 					if(credit_i.read().bit(i) == 1){
-						write_range(data_out, (i+1)*FLIT_SIZE-1, i*FLIT_SIZE, packet[i][current_flit[i]++]);
+						data_bus.range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE) = packet[i][current_flit[i]++];
 					}
 				} else {
 					if(credit_i.read().bit(i) == 1){
 
 						/* Packet sent. Clear resources and check if we have another packet for this node. */
 						packet[i].clear();
-						clear_bit(tx, i);
-						write_range(data_out, (i+1)*FLIT_SIZE-1, i*FLIT_SIZE, 0);
+						tx_bus[i] = 0;
+						data_bus.range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE) = 0;
 
 						/* Reached end of file */
 						if(feof(input[i])){
@@ -191,6 +198,8 @@ void InputModule::injector()
 				}
 			}
 		}
+		tx.write(tx_bus);
+		data_out.write(data_bus);
 		wait();
 	}
 
@@ -199,25 +208,4 @@ void InputModule::injector()
 void InputModule::clock_generator()
 {
 	clock_tx.write(__UINT64_MAX__*clock.read());
-}
-
-void hermes::set_bit(sc_inout<reg_node_no> &out, uint64_t i)
-{
-	reg_node_no aux = out.read();
-	aux.bit(i) = 1;
-	out.write(aux);
-}
-
-void hermes::clear_bit(sc_inout<reg_node_no> &out, uint64_t i)
-{
-	reg_node_no aux = out.read();
-	aux.bit(i) = 0;
-	out.write(aux);
-}
-
-void hermes::write_range(sc_inout<sc_node_no_reg_flit_size> &out, uint64_t hi, uint64_t lo, reg_flit_size val)
-{
-	sc_node_no_reg_flit_size aux = out.read();
-	aux.range(hi, lo) = val;
-	out.write(aux);
 }
