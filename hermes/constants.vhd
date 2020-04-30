@@ -19,6 +19,6 @@ package constants is
 	constant FLIT_SIZE : integer range 1 to 64 := 16;
 
 	--! Number of buffer slots for each output buffer
-	constant BUFFER_SIZE: integer := 4;
+	constant BUFFER_SIZE : integer := 4;
 
 end package;
