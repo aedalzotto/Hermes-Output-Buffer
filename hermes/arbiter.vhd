@@ -58,8 +58,9 @@ begin
 	process(reset, clock)
 	begin
 		if reset = '1' then
-			--! RNG to set last priority starter. The RNG was done by rolling a dice.
+			--! RNG to set least priority starter. The RNG was done by rolling a dice.
 			last <= EAST;
+			target <= EAST;
 			target_set <= '0';
 			active_state <= S_INIT;
 		elsif rising_edge(clock) then
@@ -127,21 +128,23 @@ begin
 				when S_PKTSIZE =>
 					--! Save for flow control
 					if data_av(target) = '1' and credit_i = '1' then
-						flit_counter <= data_in(target);
+						flit_counter <= data_in(target) - 1;
 						active_state <= S_PAYLOAD;
 					end if;
 
 				--! Send the payload
 				when S_PAYLOAD =>
-					--! Wait full packet transmission
-					if flit_counter = 0 then
-						--! End of packet, disables muxing
-						target_set <= '0';
-						active_state <= S_INIT;
-					elsif credit_i = '1' and data_av(target) = '1' then
-						flit_counter <= flit_counter - 1;
+					--! Flit transmitted
+					if credit_i = '1' then
+						--! End of Packet
+						if flit_counter = 0 then
+							target_set <= '0';
+							active_state <= S_INIT;
+						elsif data_av(target) = '1' then
+							--! Next flit
+							flit_counter <= flit_counter - 1;
+						end if;
 					end if;
-
 			end case;
 		end if;
 	end process;

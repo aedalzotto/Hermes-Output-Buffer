@@ -120,19 +120,22 @@ begin
 				when S_PKTSIZE =>
 					--! Load the payload size to the counter to know when to reroute
 					if rx = '1' and credit_i(target) = '1' then
-						flit_counter <= data_in;
+						flit_counter <= data_in - 1;
 						active_state <= S_PAYLOAD;
 					end if;
 				
 				when S_PAYLOAD =>
-					--! Send until reaching the end of the payload
-					if flit_counter = 0 then
-						--! Undo routing and restart the state machine
-						target_set <= '0';
-						active_state <= S_INIT;
-					elsif rx = '1' and credit_i(target) = '1' then
-						--! Each flit sent reduces from flit counter
-						flit_counter <= flit_counter - 1;
+					--! Flit transmitted
+					if credit_i(target) = '1' then
+						--! Packet transmitted (at least to buffer)
+						if flit_counter = 0 then
+							--! Undo routing and restart the state machine
+							target_set <= '0';
+							active_state <= S_INIT;
+						elsif rx = '1' then
+							--! Each flit sent reduces from flit counter
+							flit_counter <= flit_counter -1;
+						end if;
 					end if;
 
 			end case;
