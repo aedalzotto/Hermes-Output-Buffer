@@ -18,7 +18,7 @@ The co-simulation (VHDL + SystemC) can be done with ModelSim. At least experimen
 
 Manual evaluation can be done placing the input files in the repository root following the name `in#.txt`, where `#` is the index of the node where the packet will be injected. This is the packet format:
 
-| Cycle to inject (dec) | Target (hex) | Payload Size (hex) | Cycle to inject[3] (hex) | Cycle to inject[2] (hex) | Cycle to inject[1] (hex) | Cycle to inject[0] (hex) | Sequence no.[1] (hex) | Sequence no.[0] (hex) | Payload... |
+| Cycle to inject (hex) | Target (hex) | Payload Size (hex) | Cycle to inject[3] (hex) | Cycle to inject[2] (hex) | Cycle to inject[1] (hex) | Cycle to inject[0] (hex) | Sequence no.[1] (hex) | Sequence no.[0] (hex) | Payload... |
 |-----------------------|--------------|--------------------|--------------------------|--------------------------|--------------------------|--------------------------|----------------|-|-|
 
 The NoC parameters can be set in the [VHDL](hermes/constants.vhd) and [SystemC](modules/constants.hpp) constants files. It is possible to change the NoC size (X and Y), the flit size and the number of buffer slots.
@@ -43,8 +43,17 @@ To run, simply execute the `simulate.do` script, commenting anything below the `
 <br/>
 <div align="center">
 	<img src=docs/arbiting.png >
-	<p>This shows the arbiting being done in 1 clock cycle when the last flit of the previous cycle has being sent.</p>
+	<p>This shows the arbiting being done in 1 clock cycle when the last flit of the previous packet has being sent.</p>
 </div>
+
+### Atlas Simulation with 8x8 NoC
+
+1. Open Atlas, select Projects > New Project, and create a new project of type HermesOB. <br/><div align="center"><img src=docs/project.png ></div>
+2. Select NoC Generation, and generate NoC with X and Y dimensions equal to 8, flit size of 16 and buffer depth of 4. The only routing algorithm supported is XY, and the only arbiting algorithm supported is Round-Robin. <br/><div align="center"><img src=docs/generate.png ></div>
+3. Select Traffic Generation, Manage Scenery > New Scenery, and create a new scenery. Select Configuration > Standard Configuration, and generate a traffic with target 'Complement'. Choose 100 packets with 480 Mbps rate (60% of network capacity). Click Generate. <br/><div align="center"><img src=docs/traffic.png></div>
+4. Select Simulation and simulate for 3ms.
+5. Check the performance evaluation. Power evaluation is unsupported for Hermes OB.
+
 
 ## Credits
 
