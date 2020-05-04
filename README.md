@@ -16,11 +16,35 @@ The co-simulation (VHDL + SystemC) can be done with ModelSim. At least experimen
 
 ## Evaluating
 
-Manual evaluation can be done placing the input files in the repository root following the name `in#.txt`, where `#` is the index of the node where the packet will be injected. See the [Input Module Source](modules/InputModule.cpp) for the packet format.
+Manual evaluation can be done placing the input files in the repository root following the name `in#.txt`, where `#` is the index of the node where the packet will be injected. This is the packet format:
 
-The NoC parameters can be set in the [VHDL](hermes/constants.vhd) and [SystemC](modules/constants.hpp) constants files.
+| Cycle to inject (dec) | Target (hex) | Payload Size (hex) | Cycle to inject[3] (hex) | Cycle to inject[2] (hex) | Cycle to inject[1] (hex) | Cycle to inject[0] (hex) | Sequence no.[1] (hex) | Sequence no.[0] (hex) | Payload... |
+|-----------------------|--------------|--------------------|--------------------------|--------------------------|--------------------------|--------------------------|----------------|-|-|
+
+The NoC parameters can be set in the [VHDL](hermes/constants.vhd) and [SystemC](modules/constants.hpp) constants files. It is possible to change the NoC size (X and Y), the flit size and the number of buffer slots.
 
 To run, simply execute the `simulate.do` script, commenting anything below the `run` line (including itself). A `wave.do` including some routers path for a 3x3 NoC and a `wave_input.do` including de packet injector signals are bundled with the project.
+
+## Example
+
+### Manual Simulation 3x3 NoC
+
+1. The default NoC size is 3x3, but if you want to change, check [constants.vhd](/hermes/constants.vhd) and [constants.hpp](modules/constants.hpp).
+2. Create a new file in the project root called in0.txt. This will be the input packets in local port 0 (Router 0x0). Populate it with ```1 0012 000B 0000 0000 0000 0001 0000 0001 BBBB CCCC DDDD EEEE FFFF```. This means a packet will be injected at cycle 1 targeting the node 1x2 with size 0xB flits. The final size will be 0xF, because the input module injects a few more information to the packet.
+3. Create a new file in the project root called in2.txt. This will be the input packets in local port 2 (Router 2x0). Populate it with ```1 0012 000B 0000 0000 0000 0001 0000 0001 B00B C00C D00D E00E F00F```. This means a packet will be injected at cycle 1 targeting the node 1x2 with size 0xB flits. The final size will be 0xF, because the input module injects a few more information to the packet.
+4. Comment anything below the "run" (line 25) of [simulate.do](simulate.do), including itself.
+5. Compile and simulate using ModelSim and the [simulate.do](simulate.do) that was modified. A [wave.do](wave.do) is bundled to see this example signals.
+6. You should be able to see the following:
+
+<div align="center">
+	<img src=docs/routing.png >
+	<p>This shows the routing being done in 3 clock cycles. The first is the XY routing algorithm to pick the output buffer, the second is the buffer propagation and the third is the round-robin arbiter algorithm.</p>
+</div>
+<br/>
+<div align="center">
+	<img src=docs/arbiting.png >
+	<p>This shows the arbiting being done in 1 clock cycle when the last flit of the previous cycle has being sent.</p>
+</div>
 
 ## Credits
 
