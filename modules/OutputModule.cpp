@@ -71,54 +71,63 @@ void OutputModule::sniffer()
 	uint64_t transmitting = 0;
 	uint64_t timeout = 0;
 
+	vector<uint64_t> buffer[NODE_NO];
+
 	while(true){
 		
 		for(int i = 0; i < NODE_NO; i++){
 			/* Receiving data */
 			if(tx_local.read().bit(i) == SC_LOGIC_1){
 				// First flit: TARGET
-				sc_reg_flit_size incoming= data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_ulong();
+				sc_reg_flit_size incoming = data_in.read().range((i+1)*FLIT_SIZE-1, i*FLIT_SIZE).to_uint64();
 
 				if(!current_flit[i]){
 					transmitting++;
-					fprintf(output[i], "%0*X", FLIT_SIZE/4, incoming.value());
+					buffer[i].push_back(incoming.value());
+
 					current_flit[i]++;
 				} else if(current_flit[i] == 1){
-					fprintf(output[i], " %0*X", FLIT_SIZE/4, incoming.value());
+					buffer[i].push_back(incoming.value());
 
 					flit_count[i] = incoming.value();
 					current_flit[i]++;
 				} else if(current_flit[i] == 2){	// SOURCE
-					fprintf(output[i], " %0*X", FLIT_SIZE/4, incoming.value());
+					buffer[i].push_back(incoming.value());
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else if(current_flit[i] < 7){	// Flits 3, 4, 5 and 6: timestamp node out
-					fprintf(output[i], " %0*X", FLIT_SIZE/4, incoming.value());
-
+					buffer[i].push_back(incoming.value());
 					timestamp_core[i] += (uint64_t)(incoming.value() * pow(2,((6 - current_flit[i])*FLIT_SIZE)));
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else if(current_flit[i] < 9){	// Flits 7 and 8: sequence number
-					fprintf(output[i], " %0*X", FLIT_SIZE/4, incoming.value());
+					buffer[i].push_back(incoming.value());
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else if(current_flit[i] < 13){	// Flits 9, 10, 11 and 12: timestamp network in 
-					fprintf(output[i], " %0*X", FLIT_SIZE/4, incoming.value());
+					buffer[i].push_back(incoming.value());
 
 					timestamp_net[i] += (unsigned long int)(incoming.value() * pow(2,((12 - current_flit[i])*FLIT_SIZE)));
 
 					flit_count[i]--;
 					current_flit[i]++;
 				} else { // Payload
-					fprintf(output[i], " %0*X", FLIT_SIZE/4, incoming.value());
+					buffer[i].push_back(incoming.value());
 
 					flit_count[i]--;
 					current_flit[i]++;
 
 					if(!flit_count[i]){
+						/* Write flits to file */
+						fprintf(output[i], "%0*X", FLIT_SIZE/4, buffer[i][0]);
+						for(int j = 1; j < buffer[i].size(); j++){
+							fprintf(output[i], " %0*X", FLIT_SIZE/4, buffer[i][j]);
+						}
+						buffer[i].clear();
+
 						system_clock::time_point now = high_resolution_clock().now();
 
 						int64_t duration = duration_cast<milliseconds>(now - then).count();
@@ -130,32 +139,40 @@ void OutputModule::sniffer()
 							fprintf(output[i], " %s", oss.str().substr(j, FLIT_SIZE/4).c_str());
 						}
 
-						fprintf(output[i], " %d", timestamp_core[i]);
-						fprintf(output[i], " %d", timestamp_net[i]);
-						fprintf(output[i], " %d", cycle);
-						fprintf(output[i], " %d", cycle - timestamp_core[i]);
-						fprintf(output[i], " %ld\n", duration);
+						fprintf(output[i], " %llu", timestamp_core[i]);
+						fprintf(output[i], " %llu", timestamp_net[i]);
+						fprintf(output[i], " %llu", cycle);
+						fprintf(output[i], " %llu", cycle - timestamp_core[i]);
+						fprintf(output[i], " %lld\n", duration);
 
 						current_flit[i] = 0;
 						transmitting--;
 						timestamp_core[i] = 0;
 						timestamp_net[i] = 0;
+
+						/* Guarantee the file will be written */
+						fflush(output[i]);
 					}
 				}
 			}
-			fflush(output[i]);
 		}
 		if(finish == SC_LOGIC_1){
-			if(transmitting)
+			if(transmitting){
 				timeout=0;
-			else {
+			} else {
 				timeout++;
 				if(timeout>1000)
-					sc_stop();
+					break;
 			}
 		}
 		cycle++;
 		wait();
 	}
+
+	/* Clean up */
+	for(int i = 0; i < NODE_NO; i++)
+		fclose(output[i]);
+
+	sc_stop();
 	
 }

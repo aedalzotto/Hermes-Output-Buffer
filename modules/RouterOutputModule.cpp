@@ -11,10 +11,12 @@
 #include "RouterOutputModule.hpp"
 
 #include <cstdio>
+#include <vector>
 
 SC_MODULE_EXPORT(RouterOutputModule);
 
 using namespace hermes;
+using namespace std;
 
 RouterOutputModule::RouterOutputModule(sc_module_name _name) : sc_module(_name)
 {
@@ -63,6 +65,8 @@ void RouterOutputModule::sniffer()
 		}
 	}
 
+	vector<uint64_t> buffer[NODE_NO][PORT_NO];
+
 	while(true){
 		cycle++;
 		for(int node = 0; node < NODE_NO; node++){
@@ -73,76 +77,92 @@ void RouterOutputModule::sniffer()
 			if((node+1) % X_SIZE){
 				if(tx.read().bit(node*PORT_NO + EAST) == 1 && credit_i.read().bit(node*PORT_NO + EAST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + EAST + 1)*FLIT_SIZE - 1, (node*PORT_NO + EAST)*FLIT_SIZE).to_uint64();
-					fprintf(output[node][EAST], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
-					current_flit[node][EAST]++;
+					buffer[node][EAST].push_back(incoming.value());
 					
 					/* Flow control: payload size */
-					if(current_flit[node][EAST] == 2){
+					if(current_flit[node][EAST] == 1){
 						flit_count[node][EAST] = incoming.value();
-					} else if(current_flit[node][EAST] > 2){
+					} else if(current_flit[node][EAST] > 1){
 						if(!(--flit_count[node][EAST])){
+							for(int i = 0; i < buffer[node][EAST].size(); i++){
+								fprintf(output[node][EAST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][EAST][i], cycle);
+							}
 							fprintf(output[node][EAST], "\n");
+							fflush(output[node][EAST]);
 							current_flit[node][EAST] = 0;
+							buffer[node][EAST].clear();
 						}
 					}
-					fflush(output[node][EAST]);
+					current_flit[node][EAST]++;
 				}
 			}
 			/* Not westernmost. Has west ports */
 			if(node % X_SIZE){
 				if(tx.read().bit(node*PORT_NO + WEST) == 1 && credit_i.read().bit(node*PORT_NO + WEST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + WEST + 1)*FLIT_SIZE - 1, (node*PORT_NO + WEST)*FLIT_SIZE).to_uint64();
-					fprintf(output[node][WEST], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
-					current_flit[node][WEST]++;
+					buffer[node][WEST].push_back(incoming.value());
 					
 					/* Flow control: payload size */
-					if(current_flit[node][WEST] == 2){
+					if(current_flit[node][WEST] == 1){
 						flit_count[node][WEST] = incoming.value();
-					} else if(current_flit[node][WEST] > 2){
+					} else if(current_flit[node][WEST] > 1){
 						if(!(--flit_count[node][WEST])){
+							for(int i = 0; i < buffer[node][WEST].size(); i++){
+								fprintf(output[node][WEST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][WEST][i], cycle);
+							}
 							fprintf(output[node][WEST], "\n");
+							fflush(output[node][WEST]);
 							current_flit[node][WEST] = 0;
+							buffer[node][WEST].clear();
 						}
 					}
-					fflush(output[node][WEST]);
+					current_flit[node][WEST]++;
 				}
 			}
 			/* Not northernmost. Has north ports */
 			if(node < NODE_NO-X_SIZE){
 				if(tx.read().bit(node*PORT_NO + NORTH) == 1 && credit_i.read().bit(node*PORT_NO + NORTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + NORTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + NORTH)*FLIT_SIZE).to_uint64();
-					fprintf(output[node][NORTH], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
-					current_flit[node][NORTH]++;
+					buffer[node][NORTH].push_back(incoming.value());
 					
 					/* Flow control: payload size */
-					if(current_flit[node][NORTH] == 2){
+					if(current_flit[node][NORTH] == 1){
 						flit_count[node][NORTH] = incoming.value();
-					} else if(current_flit[node][NORTH] > 2){
+					} else if(current_flit[node][NORTH] > 1){
 						if(!(--flit_count[node][NORTH])){
+							for(int i = 0; i < buffer[node][NORTH].size(); i++){
+								fprintf(output[node][NORTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][NORTH][i], cycle);
+							}
 							fprintf(output[node][NORTH], "\n");
+							fflush(output[node][NORTH]);
 							current_flit[node][NORTH] = 0;
+							buffer[node][NORTH].clear();
 						}
 					}
-					fflush(output[node][NORTH]);
+					current_flit[node][NORTH]++;
 				}
 			}
 			/* Not southernmost. Has south ports */
 			if(node >= X_SIZE){
 				if(tx.read().bit(node*PORT_NO + SOUTH) == 1 && credit_i.read().bit(node*PORT_NO + SOUTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + SOUTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + SOUTH)*FLIT_SIZE).to_uint64();
-					fprintf(output[node][SOUTH], "(%0*X %u)", FLIT_SIZE/4, incoming.value(), cycle);
-					current_flit[node][SOUTH]++;
+					buffer[node][SOUTH].push_back(incoming.value());
 					
 					/* Flow control: payload size */
-					if(current_flit[node][SOUTH] == 2){
+					if(current_flit[node][SOUTH] == 1){
 						flit_count[node][SOUTH] = incoming.value();
-					} else if(current_flit[node][SOUTH] > 2){
+					} else if(current_flit[node][SOUTH] > 1){
 						if(!(--flit_count[node][SOUTH])){
+							for(int i = 0; i < buffer[node][SOUTH].size(); i++){
+								fprintf(output[node][SOUTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][SOUTH][i], cycle);
+							}
 							fprintf(output[node][SOUTH], "\n");
+							fflush(output[node][SOUTH]);
 							current_flit[node][SOUTH] = 0;
+							buffer[node][SOUTH].clear();
 						}
 					}
-					fflush(output[node][SOUTH]);
+					current_flit[node][SOUTH]++;
 				}
 			}
 		}
