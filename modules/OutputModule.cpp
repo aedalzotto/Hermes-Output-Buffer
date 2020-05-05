@@ -44,7 +44,6 @@ void OutputModule::sniffer()
 	/* Flow control */
 	sc_reg_flit_size current_flit[NODE_NO];
 	sc_reg_flit_size flit_count[NODE_NO];
-	credit_o.write(__UINT64_MAX__);
 
 	/* Open all files and set all output credits as high */
 	for(int i = 0; i < NODE_NO; i++){

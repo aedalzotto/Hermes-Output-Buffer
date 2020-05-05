@@ -46,6 +46,7 @@ begin
 	sc_bind: for i in 0 to NODE_NO-1 generate
 		sc_data_out((i+1)*FLIT_SIZE-1 downto i*FLIT_SIZE) <= data_out(i);
 		data_in(i) <= sc_data_in((i+1)*FLIT_SIZE-1 downto i*FLIT_SIZE);
+		credit_i(i) <= '1';
 	end generate;
 
 	clocks: for i in 0 to NODE_NO-1 generate
@@ -74,8 +75,7 @@ begin
 		finish => finish,
 
         tx_local => tx,
-        data_in => sc_data_out,
-		credit_o => credit_i
+        data_in => sc_data_out
     );
 
 	inputmodule: Entity work.InputModule

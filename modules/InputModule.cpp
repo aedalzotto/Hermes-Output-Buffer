@@ -163,10 +163,24 @@ void InputModule::injector()
 
 							/* Next packet! */
 							fscanf(input[i], "%X", &start_time[i]);
+							/* Add some protection for end of file */
+							if(feof(input[i])){
+								fclose(input[i]);
+								active[i] = false;
+								active_cnt--;
+								continue;
+							}
 							
 							/* Get header */
 							uint64_t flit;
 							fscanf(input[i], "%X", &flit);
+							/* Add some protection for end of file */
+							if(feof(input[i])){
+								fclose(input[i]);
+								active[i] = false;
+								active_cnt--;
+								continue;
+							}
 							packet[i].push_back(flit);
 							
 							/* Get payload size */
