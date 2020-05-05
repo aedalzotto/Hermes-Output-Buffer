@@ -65,7 +65,7 @@ void RouterOutputModule::sniffer()
 		}
 	}
 
-	vector<std::pair<uint64_t, uint64_t> > buffer[NODE_NO][PORT_NO];
+	vector<pair<uint64_t, uint64_t> > buffer[NODE_NO][PORT_NO];
 
 	while(true){
 		cycle++;
@@ -77,7 +77,7 @@ void RouterOutputModule::sniffer()
 			if((node+1) % X_SIZE){
 				if(tx.read().bit(node*PORT_NO + EAST) == 1 && credit_i.read().bit(node*PORT_NO + EAST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + EAST + 1)*FLIT_SIZE - 1, (node*PORT_NO + EAST)*FLIT_SIZE).to_uint64();
-					buffer[node][EAST].push_back(std::pair(incoming.value(), cycle));
+					buffer[node][EAST].push_back(make_pair(incoming.value(), cycle));
 					current_flit[node][EAST]++;
 					
 					/* Flow control: payload size */
@@ -100,7 +100,7 @@ void RouterOutputModule::sniffer()
 			if(node % X_SIZE){
 				if(tx.read().bit(node*PORT_NO + WEST) == 1 && credit_i.read().bit(node*PORT_NO + WEST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + WEST + 1)*FLIT_SIZE - 1, (node*PORT_NO + WEST)*FLIT_SIZE).to_uint64();
-					buffer[node][WEST].push_back(std::pair(incoming.value(), cycle));
+					buffer[node][WEST].push_back(make_pair(incoming.value(), cycle));
 					current_flit[node][WEST]++;
 					
 					/* Flow control: payload size */
@@ -123,7 +123,7 @@ void RouterOutputModule::sniffer()
 			if(node < NODE_NO-X_SIZE){
 				if(tx.read().bit(node*PORT_NO + NORTH) == 1 && credit_i.read().bit(node*PORT_NO + NORTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + NORTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + NORTH)*FLIT_SIZE).to_uint64();
-					buffer[node][NORTH].push_back(std::pair(incoming.value(), cycle));
+					buffer[node][NORTH].push_back(make_pair(incoming.value(), cycle));
 					current_flit[node][NORTH]++;
 
 					/* Flow control: payload size */
@@ -146,7 +146,7 @@ void RouterOutputModule::sniffer()
 			if(node >= X_SIZE){
 				if(tx.read().bit(node*PORT_NO + SOUTH) == 1 && credit_i.read().bit(node*PORT_NO + SOUTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + SOUTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + SOUTH)*FLIT_SIZE).to_uint64();
-					buffer[node][SOUTH].push_back(std::pair(incoming.value(), cycle));
+					buffer[node][SOUTH].push_back(make_pair(incoming.value(), cycle));
 					current_flit[node][SOUTH]++;
 
 					/* Flow control: payload size */
