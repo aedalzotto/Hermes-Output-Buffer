@@ -102,7 +102,7 @@ begin
 								elsif data_av(NORTH) = '1' then target <= NORTH;
 								else target <= SOUTH;
 								end if;
-							when others =>
+							when LOCAL =>
 								if data_av(EAST) = '1' then target <= EAST;
 								elsif data_av(WEST) = '1' then target <= WEST;
 								elsif data_av(NORTH) = '1' then target <= NORTH;
