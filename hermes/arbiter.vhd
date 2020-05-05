@@ -45,7 +45,7 @@ architecture rtl of arbiter is
 begin
 
 	--! Output data bus muxing
-	data_out <= (others => '0') when target_set = '0' else data_in(target);
+	data_out <= data_in(target);
 
 	--! Output TX muxing
 	tx <= '0' when target_set = '0' else data_av(target);
@@ -112,7 +112,6 @@ begin
 						end case;
 						
 						--! Set the last selected and enable the mux/demux
-						last <= target;
 						target_set <= '1';
 						active_state <= S_SENDHEADER;
 					end if;
@@ -120,6 +119,7 @@ begin
 				--! Transmit first flit
 				when S_SENDHEADER =>
 					--! Just wait for ack
+					last <= target;
 					if credit_i = '1' then
 						active_state <= S_PKTSIZE;
 					end if;
