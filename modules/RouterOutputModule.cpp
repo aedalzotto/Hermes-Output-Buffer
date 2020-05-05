@@ -78,11 +78,12 @@ void RouterOutputModule::sniffer()
 				if(tx.read().bit(node*PORT_NO + EAST) == 1 && credit_i.read().bit(node*PORT_NO + EAST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + EAST + 1)*FLIT_SIZE - 1, (node*PORT_NO + EAST)*FLIT_SIZE).to_uint64();
 					buffer[node][EAST].push_back(std::pair(incoming.value(), cycle));
+					current_flit[node][EAST]++;
 					
 					/* Flow control: payload size */
-					if(current_flit[node][EAST] == 1){
+					if(current_flit[node][EAST] == 2){
 						flit_count[node][EAST] = incoming.value();
-					} else if(current_flit[node][EAST] > 1){
+					} else if(current_flit[node][EAST] > 2){
 						if(!(--flit_count[node][EAST])){
 							for(int i = 0; i < buffer[node][EAST].size(); i++){
 								fprintf(output[node][EAST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][EAST][i].first, buffer[node][EAST][i].second);
@@ -93,7 +94,6 @@ void RouterOutputModule::sniffer()
 							buffer[node][EAST].clear();
 						}
 					}
-					current_flit[node][EAST]++;
 				}
 			}
 			/* Not westernmost. Has west ports */
@@ -101,11 +101,12 @@ void RouterOutputModule::sniffer()
 				if(tx.read().bit(node*PORT_NO + WEST) == 1 && credit_i.read().bit(node*PORT_NO + WEST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + WEST + 1)*FLIT_SIZE - 1, (node*PORT_NO + WEST)*FLIT_SIZE).to_uint64();
 					buffer[node][WEST].push_back(std::pair(incoming.value(), cycle));
+					current_flit[node][WEST]++;
 					
 					/* Flow control: payload size */
-					if(current_flit[node][WEST] == 1){
+					if(current_flit[node][WEST] == 2){
 						flit_count[node][WEST] = incoming.value();
-					} else if(current_flit[node][WEST] > 1){
+					} else if(current_flit[node][WEST] > 2){
 						if(!(--flit_count[node][WEST])){
 							for(int i = 0; i < buffer[node][WEST].size(); i++){
 								fprintf(output[node][WEST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][WEST][i].first, buffer[node][WEST][i].second);
@@ -116,7 +117,6 @@ void RouterOutputModule::sniffer()
 							buffer[node][WEST].clear();
 						}
 					}
-					current_flit[node][WEST]++;
 				}
 			}
 			/* Not northernmost. Has north ports */
@@ -124,11 +124,12 @@ void RouterOutputModule::sniffer()
 				if(tx.read().bit(node*PORT_NO + NORTH) == 1 && credit_i.read().bit(node*PORT_NO + NORTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + NORTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + NORTH)*FLIT_SIZE).to_uint64();
 					buffer[node][NORTH].push_back(std::pair(incoming.value(), cycle));
-					
+					current_flit[node][NORTH]++;
+
 					/* Flow control: payload size */
-					if(current_flit[node][NORTH] == 1){
+					if(current_flit[node][NORTH] == 2){
 						flit_count[node][NORTH] = incoming.value();
-					} else if(current_flit[node][NORTH] > 1){
+					} else if(current_flit[node][NORTH] > 2){
 						if(!(--flit_count[node][NORTH])){
 							for(int i = 0; i < buffer[node][NORTH].size(); i++){
 								fprintf(output[node][NORTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][NORTH][i].first, buffer[node][NORTH][i].second);
@@ -138,8 +139,7 @@ void RouterOutputModule::sniffer()
 							current_flit[node][NORTH] = 0;
 							buffer[node][NORTH].clear();
 						}
-					}
-					current_flit[node][NORTH]++;
+					}	
 				}
 			}
 			/* Not southernmost. Has south ports */
@@ -147,11 +147,12 @@ void RouterOutputModule::sniffer()
 				if(tx.read().bit(node*PORT_NO + SOUTH) == 1 && credit_i.read().bit(node*PORT_NO + SOUTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + SOUTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + SOUTH)*FLIT_SIZE).to_uint64();
 					buffer[node][SOUTH].push_back(std::pair(incoming.value(), cycle));
-					
+					current_flit[node][SOUTH]++;
+
 					/* Flow control: payload size */
-					if(current_flit[node][SOUTH] == 1){
+					if(current_flit[node][SOUTH] == 2){
 						flit_count[node][SOUTH] = incoming.value();
-					} else if(current_flit[node][SOUTH] > 1){
+					} else if(current_flit[node][SOUTH] > 2){
 						if(!(--flit_count[node][SOUTH])){
 							for(int i = 0; i < buffer[node][SOUTH].size(); i++){
 								fprintf(output[node][SOUTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][SOUTH][i].first, buffer[node][SOUTH][i].second);
@@ -162,7 +163,6 @@ void RouterOutputModule::sniffer()
 							buffer[node][SOUTH].clear();
 						}
 					}
-					current_flit[node][SOUTH]++;
 				}
 			}
 		}
