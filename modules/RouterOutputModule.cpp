@@ -65,7 +65,7 @@ void RouterOutputModule::sniffer()
 		}
 	}
 
-	vector<uint64_t> buffer[NODE_NO][PORT_NO];
+	vector<std::pair<uint64_t, uint64_t> > buffer[NODE_NO][PORT_NO];
 
 	while(true){
 		cycle++;
@@ -77,7 +77,7 @@ void RouterOutputModule::sniffer()
 			if((node+1) % X_SIZE){
 				if(tx.read().bit(node*PORT_NO + EAST) == 1 && credit_i.read().bit(node*PORT_NO + EAST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + EAST + 1)*FLIT_SIZE - 1, (node*PORT_NO + EAST)*FLIT_SIZE).to_uint64();
-					buffer[node][EAST].push_back(incoming.value());
+					buffer[node][EAST].push_back(std::pair(incoming.value(), cycle));
 					
 					/* Flow control: payload size */
 					if(current_flit[node][EAST] == 1){
@@ -85,7 +85,7 @@ void RouterOutputModule::sniffer()
 					} else if(current_flit[node][EAST] > 1){
 						if(!(--flit_count[node][EAST])){
 							for(int i = 0; i < buffer[node][EAST].size(); i++){
-								fprintf(output[node][EAST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][EAST][i], cycle);
+								fprintf(output[node][EAST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][EAST][i].first, buffer[node][EAST][i].second);
 							}
 							fprintf(output[node][EAST], "\n");
 							fflush(output[node][EAST]);
@@ -100,7 +100,7 @@ void RouterOutputModule::sniffer()
 			if(node % X_SIZE){
 				if(tx.read().bit(node*PORT_NO + WEST) == 1 && credit_i.read().bit(node*PORT_NO + WEST) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + WEST + 1)*FLIT_SIZE - 1, (node*PORT_NO + WEST)*FLIT_SIZE).to_uint64();
-					buffer[node][WEST].push_back(incoming.value());
+					buffer[node][WEST].push_back(std::pair(incoming.value(), cycle));
 					
 					/* Flow control: payload size */
 					if(current_flit[node][WEST] == 1){
@@ -108,7 +108,7 @@ void RouterOutputModule::sniffer()
 					} else if(current_flit[node][WEST] > 1){
 						if(!(--flit_count[node][WEST])){
 							for(int i = 0; i < buffer[node][WEST].size(); i++){
-								fprintf(output[node][WEST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][WEST][i], cycle);
+								fprintf(output[node][WEST], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][WEST][i].first, buffer[node][WEST][i].second);
 							}
 							fprintf(output[node][WEST], "\n");
 							fflush(output[node][WEST]);
@@ -123,7 +123,7 @@ void RouterOutputModule::sniffer()
 			if(node < NODE_NO-X_SIZE){
 				if(tx.read().bit(node*PORT_NO + NORTH) == 1 && credit_i.read().bit(node*PORT_NO + NORTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + NORTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + NORTH)*FLIT_SIZE).to_uint64();
-					buffer[node][NORTH].push_back(incoming.value());
+					buffer[node][NORTH].push_back(std::pair(incoming.value(), cycle));
 					
 					/* Flow control: payload size */
 					if(current_flit[node][NORTH] == 1){
@@ -131,7 +131,7 @@ void RouterOutputModule::sniffer()
 					} else if(current_flit[node][NORTH] > 1){
 						if(!(--flit_count[node][NORTH])){
 							for(int i = 0; i < buffer[node][NORTH].size(); i++){
-								fprintf(output[node][NORTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][NORTH][i], cycle);
+								fprintf(output[node][NORTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][NORTH][i].first, buffer[node][NORTH][i].second);
 							}
 							fprintf(output[node][NORTH], "\n");
 							fflush(output[node][NORTH]);
@@ -146,7 +146,7 @@ void RouterOutputModule::sniffer()
 			if(node >= X_SIZE){
 				if(tx.read().bit(node*PORT_NO + SOUTH) == 1 && credit_i.read().bit(node*PORT_NO + SOUTH) == 1){
 					sc_reg_flit_size incoming = data_out.read().range((node*PORT_NO + SOUTH + 1)*FLIT_SIZE - 1, (node*PORT_NO + SOUTH)*FLIT_SIZE).to_uint64();
-					buffer[node][SOUTH].push_back(incoming.value());
+					buffer[node][SOUTH].push_back(std::pair(incoming.value(), cycle));
 					
 					/* Flow control: payload size */
 					if(current_flit[node][SOUTH] == 1){
@@ -154,7 +154,7 @@ void RouterOutputModule::sniffer()
 					} else if(current_flit[node][SOUTH] > 1){
 						if(!(--flit_count[node][SOUTH])){
 							for(int i = 0; i < buffer[node][SOUTH].size(); i++){
-								fprintf(output[node][SOUTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][SOUTH][i], cycle);
+								fprintf(output[node][SOUTH], "(%0*X %llu)", FLIT_SIZE/4, buffer[node][SOUTH][i].first, buffer[node][SOUTH][i].second);
 							}
 							fprintf(output[node][SOUTH], "\n");
 							fflush(output[node][SOUTH]);
