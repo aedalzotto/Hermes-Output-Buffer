@@ -50,10 +50,10 @@ To run, simply execute the `simulate.do` script, commenting anything below the `
 
 1. Open Atlas, select Projects > New Project, and create a new project of type HermesOB. <br/><div align="center"><img src=docs/project.png ></div>
 2. Select NoC Generation, and generate NoC with X and Y dimensions equal to 8, flit size of 16 and buffer depth of 4. The only routing algorithm supported is XY, and the only arbiting algorithm supported is Round-Robin. <br/><div align="center"><img src=docs/generate.png ></div>
-3. Select Traffic Generation, Manage Scenery > New Scenery, and create a new scenery. Select Configuration > Standard Configuration, and generate a traffic with target 'Complement'. Choose 100 packets with 480 Mbps rate (60% of network capacity). Click Generate. <br/><div align="center"><img src=docs/traffic.png></div>
-4. Select Simulation and simulate for 3ms.
-5. Check the performance evaluation. Power evaluation is unsupported for Hermes OB.
-
+3. Select Traffic Generation, Manage Scenery > New Scenery, and create a new scenery. Select Configuration > Standard Configuration, and generate a traffic with target 'Complement'. Choose 300 packets with 480 Mbps rate (60% of network capacity). Click Generate. <br/><div align="center"><img src=docs/traffic.png></div>
+4. Select Simulation and simulate for 1ms.
+5. Check the Performance Evaluation. Select Reports > Global Report. The averages should look like this. <br/><div align="center"><img src=docs/report.png></div>
+6. For comparison purposes: a standard Hermes with the same parameters, but with 16 flits of buffer depth (same storage as 4 flits buffer depth with output buffers) yields up to 78% higher average latency with the same traffic. <br/><div align="center"><img src=docs/standard.png></div>
 
 ## Credits
 
