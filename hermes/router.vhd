@@ -75,6 +75,7 @@ begin
 	begin
 		if reset = '1' then
 			target_set <= '0';
+			target <= EAST;
 			active_state <= S_INIT;
 		elsif rising_edge(clock) then
 			case active_state is
@@ -134,7 +135,7 @@ begin
 							active_state <= S_INIT;
 						elsif rx = '1' then
 							--! Each flit sent reduces from flit counter
-							flit_counter <= flit_counter -1;
+							flit_counter <= flit_counter - 1;
 						end if;
 					end if;
 
